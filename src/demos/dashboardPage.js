@@ -218,7 +218,7 @@ export const todosData = [
 export const chartjs = {
   bar: {
     data: {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+      labels: [2/1,2/2,2/3,2/4,2/5,2/6,2/7],
       datasets: [
         {
           label: 'Expense for this year',
@@ -357,4 +357,69 @@ export const chartjs = {
       },
     },
   },
+};
+
+export const data = {
+  monthly_revenue: {
+      data: {
+        labels: [2/1,2/2,2/3,2/4,2/5,2/6,2/7],
+        datasets: [
+          {
+            label: 'Net Sales for recent 7 days',
+            borderColor: '#6a82fb',
+            backgroundColor: '#6a82fb',
+            data: [51002,48023,23131,93242,203433,12312,43234],
+          },
+  
+          {
+            label: 'Net Profits for recent 7 days',
+            borderColor: '#fc5c7d',
+            backgroundColor: '#fc5c7d',
+            data: [23423,18943,8003,40342,103433,60343,19230],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        legend: {
+          display: false,
+        },
+        title: {
+          display: false,
+          text: 'Chart.js monthly_revenue Chart - Stacked Area',
+        },
+        tooltips: {
+          intersect: false,
+          mode: 'nearest',
+        },
+        hover: {
+          mode: 'index',
+        },
+        scales: {
+          xAxes: [
+            {
+              scaleLabel: {
+                display: false,
+                labelString: 'Day',
+              },
+              gridLines: {
+                display: false,
+              },
+            },
+          ],
+          yAxes: [
+            {
+              stacked: true,
+              scaleLabel: {
+                display: false,
+                labelString: 'Number',
+              },
+              gridLines: {
+                display: false,
+              },
+            },
+          ],
+        },
+      },
+    }
 };

@@ -1,19 +1,22 @@
-import { STATE_LOGIN, STATE_SIGNUP } from 'components/AuthForm';
 import GAListener from 'components/GAListener';
-import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout';
+import { MainLayout } from 'components/Layout';
 import PageSpinner from 'components/PageSpinner';
-import AuthPage from 'pages/AuthPage';
 import React from 'react';
 import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './styles/reduction.scss';
 
+const LoginPage = React.lazy(() => import('pages/login'));
+const SignupPage = React.lazy(() => import('pages/signup'));
 const AlertPage = React.lazy(() => import('pages/AlertPage'));
+const ForGetPage = React.lazy(() => import('pages/ForgetPassword'));
+const ResetPage = React.lazy(() => import('pages/ResetPassword'));
 const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
+const AddVMPage = React.lazy(() => import('pages/AddVM'));
 const BadgePage = React.lazy(() => import('pages/BadgePage'));
 const ButtonGroupPage = React.lazy(() => import('pages/ButtonGroupPage'));
-const ButtonPage = React.lazy(() => import('pages/ButtonPage'));
-const CardPage = React.lazy(() => import('pages/CardPage'));
+const VendingMachinePage = React.lazy(() => import('pages/VendingMachine'));
+const MapPage = React.lazy(() => import('pages/MapPage'));
 const ChartPage = React.lazy(() => import('pages/ChartPage'));
 const DashboardPage = React.lazy(() => import('pages/DashboardPage'));
 const DropdownPage = React.lazy(() => import('pages/DropdownPage'));
@@ -23,7 +26,6 @@ const ModalPage = React.lazy(() => import('pages/ModalPage'));
 const ProgressPage = React.lazy(() => import('pages/ProgressPage'));
 const TablePage = React.lazy(() => import('pages/TablePage'));
 const TypographyPage = React.lazy(() => import('pages/TypographyPage'));
-const WidgetPage = React.lazy(() => import('pages/WidgetPage'));
 
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
@@ -35,30 +37,19 @@ class App extends React.Component {
       <BrowserRouter basename={getBasename()}>
         <GAListener>
           <Switch>
-            <LayoutRoute
-              exact
-              path="/login"
-              layout={EmptyLayout}
-              component={props => (
-                <AuthPage {...props} authState={STATE_LOGIN} />
-              )}
-            />
-            <LayoutRoute
-              exact
-              path="/signup"
-              layout={EmptyLayout}
-              component={props => (
-                <AuthPage {...props} authState={STATE_SIGNUP} />
-              )}
-            />
-
-            <MainLayout breakpoint={this.props.breakpoint}>
-              <React.Suspense fallback={<PageSpinner />}>
-                <Route exact path="/" component={DashboardPage} />
+            
+             <React.Suspense fallback={<PageSpinner />}>
+                <Route exact path="/" component={LoginPage} />
+                <Route exact path="/signup" component={SignupPage} />
+                <Route exact path="/check_email" component={ForGetPage} />
+                <Route exact path="/reset" component={ResetPage} />
+            {/* <MainLayout breakpoint={this.props.breakpoint}> */}
+              
+                <Route exact path="/dashboard" component={DashboardPage} />
+                <Route exact path="/addvm" component={AddVMPage} />
                 <Route exact path="/login-modal" component={AuthModalPage} />
-                <Route exact path="/buttons" component={ButtonPage} />
-                <Route exact path="/cards" component={CardPage} />
-                <Route exact path="/widgets" component={WidgetPage} />
+                <Route exact path="/map" component={MapPage} />
+                <Route exact path="/vendingmachine" component={VendingMachinePage} />
                 <Route exact path="/typography" component={TypographyPage} />
                 <Route exact path="/alerts" component={AlertPage} />
                 <Route exact path="/tables" component={TablePage} />
@@ -74,8 +65,9 @@ class App extends React.Component {
                 <Route exact path="/forms" component={FormPage} />
                 <Route exact path="/input-groups" component={InputGroupPage} />
                 <Route exact path="/charts" component={ChartPage} />
-              </React.Suspense>
-            </MainLayout>
+              
+            {/* </MainLayout> */}
+            </React.Suspense>
             <Redirect to="/" />
           </Switch>
         </GAListener>
