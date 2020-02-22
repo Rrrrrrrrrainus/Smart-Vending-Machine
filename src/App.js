@@ -37,7 +37,6 @@ class App extends React.Component {
       <BrowserRouter basename={getBasename()}>
         <GAListener>
           <Switch>
-            
              <React.Suspense fallback={<PageSpinner />}>
                 <Route exact path="/" component={LoginPage} />
                 <Route exact path="/signup" component={SignupPage} />

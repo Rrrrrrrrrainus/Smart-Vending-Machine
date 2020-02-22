@@ -20,7 +20,8 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
 
-export default function AddVM(){
+
+export default function AddVM(props){
     const vm = {
         email:"jinxund@smu.edu",
         longitude:"",
@@ -116,6 +117,7 @@ export default function AddVM(){
     const [state, setState] = React.useState({
       columns: [
         { title: 'ID', field: 'vm_id',editable: 'onAdd, onDelete'},
+        {title: 'Name', field: 'name' },
         { title: 'Longitude', field: 'longitude', type: 'numeric' },
         {
           title: 'Latitude',
@@ -123,6 +125,7 @@ export default function AddVM(){
         },
         {title: 'Net Sales', field:'sales',type:'numeric',editable: 'onAdd, onDelete'},
         {title: 'Status', field: 'status',editable: 'onAdd, onDelete' },
+        
         
       ],
       data: [
@@ -132,8 +135,14 @@ export default function AddVM(){
     useEffect(() => {
         getHandler()
       }, []);
-    return (
 
+    const movetovm = (vm) =>{
+      props.history.push({
+        pathname: '/vendingmachine',
+        data: vm // your data array of objects
+      })
+    }
+    return (
     <MainLayout> 
     <Page>
       <MaterialTable
@@ -190,7 +199,7 @@ export default function AddVM(){
             pageSize: 10,
             pageSizeOptions: [5, 10, 20, 30 ,50, 75, 100 ],
           }}
-        onRowClick={event => {window.location.href = '/vendingmachine'}}
+        onRowClick={(event,rowData) => movetovm(rowData)}
           /> </Page></MainLayout>
     );
   }

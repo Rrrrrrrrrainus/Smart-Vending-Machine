@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
 import axios from 'axios'
-
 import { Map, Marker, InfoWindow,GoogleApiWrapper } from 'google-maps-react';
+import {BrowserRouter,Link,withRouter} from 'react-router-dom'
 
 const mapStyles = {
   width: '98%',
   height: '100%'
 };
-
 
 export class MapContainer extends Component {
     constructor(props) {
@@ -19,7 +17,8 @@ export class MapContainer extends Component {
           selectedPlace: {},
           markers: [],
           selectMarker:{},
-          vm: {}
+          vm: {},
+          url:'fk'
         }
         this.getvm = {
           email:"jinxund@smu.edu"
@@ -28,7 +27,6 @@ export class MapContainer extends Component {
         // binding this to event-handler functions
         this.onMarkerClick = this.onMarkerClick.bind(this);
         this.onMapClick = this.onMapClick.bind(this);
-        
       }
       
       getHandler(){
@@ -74,6 +72,8 @@ export class MapContainer extends Component {
       componentWillMount(){
         this.getHandler()
       }
+    
+
   render() {
 
     return (
@@ -97,7 +97,9 @@ export class MapContainer extends Component {
       ID: {this.state.selectMarker.vm_id} <br />
       Latitude: {this.state.selectMarker.latitude} longitude: {this.state.selectMarker.longitude} <br/>
       Net Sales: {this.state.selectMarker.sales} Status: Online <br/>
-      <a href = "/vendingmachine"><button >More Information</button></a>
+      <a href = {'/vendingmachine/?vm_id=' + this.state.selectMarker.vm_id+'?longitude='+this.state.selectMarker.longitude
+    +'?latitude='+this.state.selectMarker.latitude+'?sales='+this.state.selectMarker.sales+'?status='+this.state.selectMarker.status}
+><button >More Information</button></a>
               
           </div>
         </InfoWindow>
@@ -105,7 +107,6 @@ export class MapContainer extends Component {
     );
   }
 }
-
 export default GoogleApiWrapper({
-  //apiKey: 'YOUR_GOOGLE_API_KEY_GOES_HERE'
+  apiKey: 'AIzaSyDxNRHpwkUKhYVH3lc4UGN-Zu2OTKZNKqU'
 })(MapContainer);

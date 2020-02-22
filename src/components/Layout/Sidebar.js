@@ -71,7 +71,6 @@ const navItems = [
   { to: '/dashboard', name: 'dashboard', exact: true, Icon: MdDashboard },
   { to: '/charts', name: 'charts', exact: false, Icon: MdInsertChart },
   { to: '/map', name: 'map', exact: false, Icon: MdMap },
-  { to: '/vendingmachine', name: 'vending machine', exact: false, Icon: MdInbox },
   { to: '/addvm', name: 'Add VM', exact: false, Icon: MdInbox }
 ];
 

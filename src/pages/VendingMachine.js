@@ -20,8 +20,54 @@ import Page from 'components/Page';
 
 
 class VendingMachine extends React.Component {
+  constructor(props) {
+    super(props);
+    this.data = {
+      vm_id:0,
+      longitude:0,
+      latitude:0,
+      sales:0,
+      status:'Online'
+    }
+   // console.log(props.location.state)
+    // if (props.location.data == undefined){
+    //   window.location.href = '/dashboard'
+    // }
+    // else{
+ //   this.data = props.location.state
+    // }
+    
 
+  }
+
+  getUrlVars() { 
+    var vars = {}; 
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([-]*[a-zA-z0-9]*[.]*[a-zA-z0-9]*)/gi, function(m,key,value) { 
+       vars[key] = value; 
+    })
+    return vars; 
+  }
+
+  getVM_data(){
+    var result = this.getUrlVars()
+    if(result['vm_id'] == undefined && this.props.location.data == undefined){
+      window.location.href = '/dashboard'
+    }
+    else if(result['vm_id'] == undefined){
+      this.data = this.props.location.data
+    }
+    else{
+      this.data.vm_id = result['vm_id']
+      
+      this.data.longitude = result['longitude']
+      this.data.latitude = result['latitude']
+      this.data.sales = result['sales']
+      this.data.status = result['status']
+    }
+  }
   render() {
+    this.getVM_data()
+
     return (
       <MainLayout breakpoint={this.props.breakpoint}> 
       <Page
@@ -76,7 +122,11 @@ class VendingMachine extends React.Component {
             <CardBody>
               <CardTitle>Your Vending Machine</CardTitle>
               <CardText>
-                Owned by SW Vault
+                Owned by SW Vault <br/>
+                Vending Machine ID: {this.data.vm_id} <br/>
+                Vending Machine Location: (Longitude: {this.data.longitude}, Latitude: {this.data.latitude})<br/>
+                Current Net Sales: {this.data.sales} <br/>
+                Vending Machine Status: Online
               </CardText>
             </CardBody>
           </Card>
