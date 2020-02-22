@@ -35,6 +35,13 @@ export default function AddVM(){
         vm_id:""
     }
 
+    const updatevm = {
+      email:"jinxund@smu.edu",
+      vm_id:"",
+      longitude:0,
+      latitude:0
+  }
+
     var vms = {}
 
     const getHandler = (e) =>{
@@ -78,6 +85,14 @@ export default function AddVM(){
             console.log(response)
             }).catch(error => {console.log(error.response)})
     }
+
+    const updateHandler = (newData,e) =>{
+      axios.post("https://vending-insights-smu.firebaseapp.com/vm/updatevm",updatevm)
+       .then(response => {
+          console.log(response)
+          }).catch(error => {console.log(error.response)})
+  }
+
     const tableIcons = {
         Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
         Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -146,6 +161,10 @@ export default function AddVM(){
                   setState(prevState => {
                     const data = [...prevState.data];
                     data[data.indexOf(oldData)] = newData;
+                    updatevm.vm_id = newData.vm_id
+                    updatevm.longitude = newData.longitude
+                    updatevm.latitude = newData.latitude
+                    updateHandler()
                     return { ...prevState, data };
                   });
                 }
