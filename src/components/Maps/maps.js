@@ -18,7 +18,6 @@ export class MapContainer extends Component {
           markers: [],
           selectMarker:{},
           vm: {},
-          url:'fk'
         }
         this.getvm = {
           email:"jinxund@smu.edu"
@@ -95,9 +94,11 @@ export class MapContainer extends Component {
         >
           <div>
       ID: {this.state.selectMarker.vm_id} <br />
+      Name: {this.state.selectMarker.name} <br />
       Latitude: {this.state.selectMarker.latitude} longitude: {this.state.selectMarker.longitude} <br/>
       Net Sales: {this.state.selectMarker.sales} Status: Online <br/>
-      <a href = {'/vendingmachine/?vm_id=' + this.state.selectMarker.vm_id+'?longitude='+this.state.selectMarker.longitude
+      <a href = {'/vendingmachine/?vm_id=' + this.state.selectMarker.vm_id+'?name='+this.state.selectMarker.name+
+      '?longitude='+this.state.selectMarker.longitude
     +'?latitude='+this.state.selectMarker.latitude+'?sales='+this.state.selectMarker.sales+'?status='+this.state.selectMarker.status}
 ><button >More Information</button></a>
               

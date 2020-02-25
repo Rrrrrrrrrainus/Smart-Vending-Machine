@@ -25,7 +25,8 @@ export default function AddVM(props){
     const vm = {
         email:"jinxund@smu.edu",
         longitude:"",
-        latitude:""
+        latitude:"",
+        name:""
     }
     const getvm = {
         email:"jinxund@smu.edu"
@@ -40,7 +41,8 @@ export default function AddVM(props){
       email:"jinxund@smu.edu",
       vm_id:"",
       longitude:0,
-      latitude:0
+      latitude:0,
+      name:""
   }
 
     var vms = {}
@@ -73,7 +75,6 @@ export default function AddVM(props){
                 newData.sales = 0;
                 newData.status = 'Online';
                 newData.vm_id = response.data*1
-                console.log(newData)
                 data.push(newData);
                 return { ...prevState, data };
               });
@@ -159,6 +160,7 @@ export default function AddVM(props){
                 resolve();
                 vm.longitude = newData.longitude;
                 vm.latitude = newData.latitude;
+                vm.name= newData.name;
                 submitHandler(newData)
               }, 600);
             }),
@@ -173,6 +175,7 @@ export default function AddVM(props){
                     updatevm.vm_id = newData.vm_id
                     updatevm.longitude = newData.longitude
                     updatevm.latitude = newData.latitude
+                    updatevm.name = newData.name
                     updateHandler()
                     return { ...prevState, data };
                   });
