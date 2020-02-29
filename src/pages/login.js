@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Image from '../assets/img/bg/img2.jpeg';
 import axios from 'axios';
+import user from 'data/user'
 
 
 function Copyright() {
@@ -82,6 +83,7 @@ export default function SignInSide() {
         .then(response => {
           console.log(response)
                 if(response.data === 'okay'){
+                    user.email = state.email
                     window.location.href = '/dashboard';
                 }
                 else{

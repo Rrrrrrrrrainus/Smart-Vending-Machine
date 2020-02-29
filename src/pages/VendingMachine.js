@@ -31,7 +31,11 @@ import {
   CardImg,
   CardBody,
   CardText,
-  Table
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Button
 } from 'reactstrap';
 import Page from 'components/Page';
 
@@ -66,7 +70,7 @@ class VendingMachine extends React.Component {
       sales:0,
       status:'Online'
     }
-
+    
     this.add_product = {
       email:"jinxund@smu.edu",
       vm_id:this.data.vm_id,
@@ -104,10 +108,28 @@ class VendingMachine extends React.Component {
     ],
     data: [
     ],
+    modal:false
   }
     
 
   }
+
+
+  toggle(i){
+    this.setState({
+      modal: !this.state.modal,
+  })
+  };
+
+  clickPrice(data){
+    const url = {
+      purchase_url:data.purchase_url
+    }
+    console.log(url)
+    this.priceHandler(url)
+
+  }
+
 
   getUrlVars() { 
     var vars = {}; 
@@ -153,6 +175,13 @@ class VendingMachine extends React.Component {
               });
         }).catch(error => {console.log(error)})
 }
+
+  priceHandler = (url,e) =>{
+    axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url)
+    .then(response => {
+            console.log(response)
+        }).catch(error => {console.log(error)})
+  }
 submitHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/addproduct",this.add_product)
    .then(response => {
@@ -202,6 +231,7 @@ deleteHandler = (newData,e) =>{
      });
     
   }
+
   render() {
     
 
@@ -252,29 +282,11 @@ deleteHandler = (newData,e) =>{
           </Col>
           </Row>
           <Row>
-        <Col lg={6}  md="12" sm="12" xs="12">
-            <Row>
-        <Card>
-            <CardImg top src={userImage} height = '400'/>
-            <CardBody>
-            <CardTitle>{this.data.name}</CardTitle>
-              <CardText>
-                Owned by SW Vault <br/>
-                Vending Machine ID: {this.data.vm_id} <br/>
-                Vending Machine Location: (Longitude: {this.data.longitude}, Latitude: {this.data.latitude})<br/>
-                Current Net Sales: {this.data.sales} <br/>
-                Vending Machine Status: Online
-              </CardText>
-            </CardBody>
-          </Card>
-          </Row>
-          </Col>
-         
-        <Col lg={6}  md="12" sm="12" xs="12">
+          <Col lg={6}  md="12" sm="12" xs="12">
         <MaterialTable
       minRows={10}
       icons={tableIcons}
-        title="Vending Machine List"
+        title="Product List"
         columns={this.state.columns}
         data={this.state.data}
         editable={{
@@ -327,9 +339,27 @@ deleteHandler = (newData,e) =>{
             pageSize: 10,
             pageSizeOptions: [5, 10, 20, 30 ,50, 75, 100 ],
           }}
-          onRowClick={(event,rowData) => window.open(rowData.purchase_url, '_blank').focus()}
+          onRowClick={(event,rowData) => this.clickPrice(rowData)}
           />
           </Col>
+          
+          
+        <Col lg={6}  md="12" sm="12" xs="12">
+        <Card>
+            <CardImg top src={userImage} height = '400'/>
+            <CardBody>
+            <CardTitle>{this.data.name}</CardTitle>
+              <CardText>
+                Owned by SW Vault <br/>
+                Vending Machine ID: {this.data.vm_id} <br/>
+                Vending Machine Location: (Longitude: {this.data.longitude}, Latitude: {this.data.latitude})<br/>
+                Current Net Sales: {this.data.sales} <br/>
+                Vending Machine Status: Online
+              </CardText>
+            </CardBody>
+          </Card>
+          </Col>
+
           </Row>
           <Row >
               <Col lg={6}  md="12" sm="12" xs="12">
@@ -356,6 +386,20 @@ deleteHandler = (newData,e) =>{
             
           </Row>
         </Page>
+        <Modal
+    isOpen={this.state.modal}
+    // toggle ={ this.toggle("fkk")}
+    >
+    <ModalHeader>{this.data.name}</ModalHeader>
+    <ModalBody>
+
+    </ModalBody>
+    <ModalFooter>
+      <Button color="secondary" onClick={() => this.toggle()}>
+        Close
+      </Button>
+    </ModalFooter>
+  </Modal>
       </MainLayout>
     );
   }

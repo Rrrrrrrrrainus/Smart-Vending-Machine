@@ -26,6 +26,7 @@ const ModalPage = React.lazy(() => import('pages/ModalPage'));
 const ProgressPage = React.lazy(() => import('pages/ProgressPage'));
 const TablePage = React.lazy(() => import('pages/TablePage'));
 const TypographyPage = React.lazy(() => import('pages/TypographyPage'));
+const LandingPage = React.lazy(() => import('../src/Landing Pge/LandingPage'));
 
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
@@ -43,7 +44,7 @@ class App extends React.Component {
                 <Route exact path="/check_email" component={ForGetPage} />
                 <Route exact path="/reset" component={ResetPage} />
             {/* <MainLayout breakpoint={this.props.breakpoint}> */}
-              
+            <Route exact path="/n" component = {LandingPage} />
                 <Route exact path="/dashboard" component={DashboardPage} />
                 <Route exact path="/addvm" component={AddVMPage} />
                 <Route exact path="/login-modal" component={AuthModalPage} />

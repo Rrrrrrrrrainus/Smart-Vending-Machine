@@ -19,6 +19,7 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
+import user from 'data/user'
 
 
 export default function AddVM(props){
@@ -65,6 +66,7 @@ export default function AddVM(props){
                     data = vm_info
                     return { ...prevState, data };
                   });
+                console.log(user.email)
             }).catch(error => {console.log(error)})
     }
     const submitHandler = (newData,e) =>{
