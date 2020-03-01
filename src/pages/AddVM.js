@@ -19,27 +19,31 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
-import user from 'data/user'
+import {decode,checkExpired} from '../components/authendication'
 
 
 export default function AddVM(props){
-    const vm = {
-        email:"jinxund@smu.edu",
+    const auth = {
+      token:localStorage.jtwToken,
+      email:undefined
+    }
+    const add_vm = {
+        email:auth.email,
+        token:auth.token,
         longitude:"",
         latitude:"",
         name:""
     }
-    const getvm = {
-        email:"jinxund@smu.edu"
-    }
 
     const deletevm = {
-        email:"jinxund@smu.edu",
+      email:auth.email,
+      token:auth.token,
         vm_id:""
     }
 
     const updatevm = {
-      email:"jinxund@smu.edu",
+      email:auth.email,
+        token:auth.token,
       vm_id:"",
       longitude:0,
       latitude:0,
@@ -49,7 +53,7 @@ export default function AddVM(props){
     var vms = {}
 
     const getHandler = (e) =>{
-        axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallvm",getvm)
+        axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallvm",auth)
          .then(response => {
                 // console.log(response)
                 vms = response.data
@@ -66,11 +70,12 @@ export default function AddVM(props){
                     data = vm_info
                     return { ...prevState, data };
                   });
-                console.log(user.email)
             }).catch(error => {console.log(error)})
     }
     const submitHandler = (newData,e) =>{
-        axios.post("https://vending-insights-smu.firebaseapp.com/vm/addvm",vm)
+      var code = decode()
+        add_vm.email = code.email
+        axios.post("https://vending-insights-smu.firebaseapp.com/vm/addvm",add_vm)
          .then(response => {
             setState(prevState => {
                 const data = [...prevState.data];
@@ -83,6 +88,8 @@ export default function AddVM(props){
             }).catch(error => {console.log(error)})
     }
     const deleteHandler = (newData,e) =>{
+      var code = decode()
+        deletevm.email = code.email
         axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deletevm",
         {data:deletevm})
          .then(response => {
@@ -91,6 +98,8 @@ export default function AddVM(props){
     }
 
     const updateHandler = (newData,e) =>{
+      var code = decode()
+        updatevm.email = code.email
       axios.post("https://vending-insights-smu.firebaseapp.com/vm/updatevm",updatevm)
        .then(response => {
           console.log(response)
@@ -136,8 +145,27 @@ export default function AddVM(props){
     });
 
     useEffect(() => {
-        getHandler()
-      }, []);
+      new Promise( (resolve, reject) => {
+        if(localStorage.jtwToken){
+          var code = decode()
+          auth.email = code.email
+          if(!checkExpired(code.exp)){
+            window.location.href='/?session=false';
+          }
+        }
+        else{
+          window.location.href='/';
+        }
+        if (auth.email !== undefined) {
+         getHandler()
+         resolve("Promise resolved successfully");
+        }
+        else {
+         reject(Error("Promise rejected"));
+        }
+       });
+        
+      }, );
 
     const movetovm = (vm) =>{
       props.history.push({
@@ -160,9 +188,9 @@ export default function AddVM(props){
               setTimeout(() => {
                 
                 resolve();
-                vm.longitude = newData.longitude;
-                vm.latitude = newData.latitude;
-                vm.name= newData.name;
+                add_vm.longitude = newData.longitude;
+                add_vm.latitude = newData.latitude;
+                add_vm.name= newData.name;
                 submitHandler(newData)
               }, 600);
             }),

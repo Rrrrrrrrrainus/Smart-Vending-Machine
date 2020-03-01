@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{useEffect} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,7 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Image from '../assets/img/bg/img2.jpeg';
 import axios from 'axios';
-import user from 'data/user'
+import {decode,checkExpired} from '../components/authendication'
 
 
 function Copyright() {
@@ -59,13 +59,25 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+function getUrlVars() { 
+  var vars = {}; 
+  window.location.href.replace(/[?&]+([^=&]+)=([-]*[a-zA-z0-9]*[.]*[a-zA-z0-9]*)/gi, function(m,key,value) { 
+     vars[key] = value; 
+  })
+  return vars; 
+}
+
 export default function SignInSide() {
   const classes = useStyles();
 
-  const state = {
+  const user = {
     email:"",
     password:""
 }
+
+  const [state,setState]  = React.useState({
+    data:false
+  });
     const error = {
         iserror : false,
         errormsg: "Invalid Email Address or Password"
@@ -74,17 +86,19 @@ export default function SignInSide() {
         const name = e.target.name;
         const value = e.target.value;
         
-        state[name]=value;
+        user[name]=value;
     }
 
     const submitHandler = (e) =>{
         console.log(state)
-        axios.post("https://vending-insights-smu.firebaseapp.com/login",state)
+        axios.post("https://vending-insights-smu.firebaseapp.com/login",user)
         .then(response => {
           console.log(response)
-                if(response.data === 'okay'){
-                    user.email = state.email
+                if(response.data !== 'no'){
+                    localStorage.setItem('jtwToken',response.data.token)
+                    localStorage.setItem('auth',response.data.auth)
                     window.location.href = '/dashboard';
+                    
                 }
                 else{
                     document.getElementsByClassName("error")[0].hidden= false;
@@ -94,6 +108,26 @@ export default function SignInSide() {
             }).catch(error => {console.log(error)})
     }
 
+    useEffect(() => {
+      if(localStorage.jtwToken){
+        var code = decode()
+        if(checkExpired(code.exp)){
+          window.location.href='/dashboard';
+        }
+      }
+    });
+
+    function checkSession(){
+      var result = getUrlVars();
+      if(result['session']){
+        if(!state.data){
+          setState({
+            data : true
+          }
+          )
+      }
+      }
+    }
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -106,6 +140,7 @@ export default function SignInSide() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
+          <div hidden = {!state.data}>{checkSession()}You session is lost. Try to login again.</div>
           <form className={classes.form} noValidate 
           >
             <TextField

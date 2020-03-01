@@ -1,5 +1,4 @@
 import GAListener from 'components/GAListener';
-import { MainLayout } from 'components/Layout';
 import PageSpinner from 'components/PageSpinner';
 import React from 'react';
 import componentQueries from 'react-component-queries';
@@ -10,7 +9,6 @@ const LoginPage = React.lazy(() => import('pages/login'));
 const SignupPage = React.lazy(() => import('pages/signup'));
 const AlertPage = React.lazy(() => import('pages/AlertPage'));
 const ForGetPage = React.lazy(() => import('pages/ForgetPassword'));
-const ResetPage = React.lazy(() => import('pages/ResetPassword'));
 const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
 const AddVMPage = React.lazy(() => import('pages/AddVM'));
 const BadgePage = React.lazy(() => import('pages/BadgePage'));
@@ -42,7 +40,6 @@ class App extends React.Component {
                 <Route exact path="/" component={LoginPage} />
                 <Route exact path="/signup" component={SignupPage} />
                 <Route exact path="/check_email" component={ForGetPage} />
-                <Route exact path="/reset" component={ResetPage} />
             {/* <MainLayout breakpoint={this.props.breakpoint}> */}
             <Route exact path="/n" component = {LandingPage} />
                 <Route exact path="/dashboard" component={DashboardPage} />

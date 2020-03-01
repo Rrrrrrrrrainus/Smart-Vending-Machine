@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import { Map, Marker, InfoWindow,GoogleApiWrapper } from 'google-maps-react';
-import {BrowserRouter,Link,withRouter} from 'react-router-dom'
+import {decode} from '../authendication'
 
 const mapStyles = {
   width: '98%',
@@ -20,7 +20,8 @@ export class MapContainer extends Component {
           vm: {},
         }
         this.getvm = {
-          email:"jinxund@smu.edu"
+          token:localStorage.jtwToken,
+          email:undefined
         }
         this.vm = []
         // binding this to event-handler functions
@@ -69,7 +70,12 @@ export class MapContainer extends Component {
         }
       }
       componentWillMount(){
-        this.getHandler()
+        if(localStorage.jtwToken){
+          var code = decode()
+          this.getvm.email = code.email
+          this.getHandler()
+        }
+        
       }
     
 

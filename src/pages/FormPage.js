@@ -1,5 +1,7 @@
 import Page from 'components/Page';
 import React from 'react';
+import pic from "../assets/rentou.png"
+import '../styles/components/_form.scss'
 import {
   Button,
   Card,
@@ -13,13 +15,78 @@ import {
   Input,
   Label,
   Row,
+  CardImg, CardText,
+  CardTitle, CardSubtitle,
 } from 'reactstrap';
+
 
 const FormPage = () => {
   return (
-    <Page title="Forms" breadcrumbs={[{ name: 'Forms', active: true }]}>
-      <Row>
-        <Col xl={6} lg={12} md={12}>
+
+    <Page>
+      <div class = "maye">
+        <div class = "text-center">
+          <img src= {pic} alt = "pic"/>
+        </div>
+
+        <div class = "Name2 text-center">
+          Dante Yuan<br/>
+        </div>
+        <div class = "description">
+        When it comes to Mac security we'd normally recommend that you make sure the macOS software is up-to-date, however, from time to time Apple has been caught out by security flaws in the Mac operating software, such as the High Sierra Root bug that made it possible for a hacker to access all the settings on a Mac just by logging in as root in System Preferences.
+        
+        <hr/>
+        <Form>
+        <FormGroup>
+          <Label for="exampleEmail">Email:</Label>
+          <Input
+            plaintext
+            value="jinxund@smu.edu"
+            readOnly
+          />
+        </FormGroup>
+
+        <FormGroup>
+        <Label for="exampleEmail">Company Name</Label>
+        <Input
+          type="email"
+          name="email"
+          placeholder="{{NAME}}"
+        />
+      </FormGroup>
+      <FormGroup>
+      <Label for="exampleEmail">Company Address</Label>
+      <Input
+        type="email"
+        name="email"
+        placeholder="{{Address}}"
+      />
+    </FormGroup>
+
+      <FormGroup>
+      <Label for="examplePassword">Password</Label>
+      <Input
+        type="password"
+        name="password"
+        placeholder="password placeholder"
+      />
+    </FormGroup>
+    <FormGroup>
+    <Label for="examplePassword">Confirm Password</Label>
+    <Input
+      type="password"
+      name="password"
+      placeholder="password placeholder"
+    />
+  </FormGroup>
+        </Form>
+
+        </div>
+
+      
+      </div>
+      <Row className="justify-content-md-center">
+        <Col xl={12} lg={12} md={12}>
           <Card>
             <CardHeader>Input Types</CardHeader>
             <CardBody>

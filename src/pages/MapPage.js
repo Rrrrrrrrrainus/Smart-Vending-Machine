@@ -6,9 +6,22 @@ import {
   Col,
 } from 'reactstrap';
 import Page from 'components/Page';
+import {decode,checkExpired} from '../components/authendication'
+
 
 class MapPage extends React.Component {
 
+  componentWillMount(){
+    if(localStorage.jtwToken){
+      var code = decode()
+      if(!checkExpired(code.exp)){
+        window.location.href='/?session=false';
+      }
+    }
+    else{
+      window.location.href='/';
+    }
+  }
   render() {
     return (
       <MainLayout breakpoint={this.props.breakpoint}> 

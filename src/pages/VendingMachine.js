@@ -22,6 +22,7 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
+import {decode,checkExpired} from '../components/authendication'
 import {
   Row,
   Col,
@@ -114,7 +115,6 @@ class VendingMachine extends React.Component {
 
   }
 
-
   toggle(i){
     this.setState({
       modal: !this.state.modal,
@@ -133,7 +133,7 @@ class VendingMachine extends React.Component {
 
   getUrlVars() { 
     var vars = {}; 
-    var parts = window.location.href.replace(/[?&]+([^=&]+)=([-]*[a-zA-z0-9]*[.]*[a-zA-z0-9]*)/gi, function(m,key,value) { 
+    window.location.href.replace(/[?&]+([^=&]+)=([-]*[a-zA-z0-9]*[.]*[a-zA-z0-9]*)/gi, function(m,key,value) { 
        vars[key] = value; 
     })
     return vars; 
@@ -141,10 +141,10 @@ class VendingMachine extends React.Component {
 
   getVM_data(){
     var result = this.getUrlVars()
-    if(result['vm_id'] == undefined && this.props.location.data == undefined){
+    if(result['vm_id'] === undefined && this.props.location.data === undefined){
       window.location.href = '/dashboard'
     }
-    else if(result['vm_id'] == undefined){
+    else if(result['vm_id'] === undefined){
       this.data = this.props.location.data
     }
     else{
@@ -209,7 +209,13 @@ deleteHandler = (newData,e) =>{
 }
 
   componentWillMount(){
-    this.getVM_data()
+    if(localStorage.jtwToken){
+      var code = decode()
+      if(!checkExpired(code.exp)){
+        window.location.href='/?session=false';
+      }
+      else{
+        this.getVM_data()
     var promise = new Promise( (resolve, reject) => {
     
       if (this.data.vm_id !== 0) {
@@ -229,6 +235,12 @@ deleteHandler = (newData,e) =>{
      }, function(error) {
       
      });
+      }
+    }
+    else{
+      window.location.href='/';
+    }
+    
     
   }
 

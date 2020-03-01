@@ -1,13 +1,10 @@
 import Avatar from 'components/Avatar';
 import { UserCard } from 'components/Card';
-import withBadge from 'hocs/withBadge';
 import React from 'react';
 import {
   MdClearAll,
   MdExitToApp,
   MdHelp,
-  MdInsertChart,
-  MdMessage,
   MdPersonPin,
   MdSettingsApplications,
 } from 'react-icons/md';
@@ -25,13 +22,16 @@ import {
 } from 'reactstrap';
 import bn from 'utils/bemnames';
 
+import {decode,checkExpired} from '../authendication'
+
 const bem = bn.create('header');
 
 
 
 class Header extends React.Component {
   state = {
-    isOpenUserCardPopover: false
+    isOpenUserCardPopover: false,
+    email:undefined
   };
 
 
@@ -48,6 +48,21 @@ class Header extends React.Component {
 
     document.querySelector('.cr-sidebar').classList.toggle('cr-sidebar--open');
   };
+
+  componentWillMount(){
+    if(this.state.email === undefined){
+      var code = decode()
+      this.setState({
+        email:code.email
+      })
+  }
+  }
+
+  signOut(){
+    delete localStorage.jtwToken
+    delete localStorage.auth
+    window.location.href='/'
+  }
 
   render() {
 
@@ -69,9 +84,6 @@ class Header extends React.Component {
           </NavItem>
           <NavItem tag="button"   className="border-light mr-2">
           <MdPersonPin /> Profile
-          </NavItem>
-          <NavItem tag="button"   className="border-light mr-2">
-          <MdSettingsApplications /> Settings
           </NavItem>
           <NavItem tag="button"  className="border-light mr-2">
           <MdHelp /> Help
@@ -95,14 +107,12 @@ class Header extends React.Component {
             >
               <PopoverBody className="p-0 border-light">
                 <UserCard
-                  title="Jamita Machen"
-                  subtitle="jamita.machen@theswvault.com"
-                  text="Last updated 3 mins ago"
+                  title={this.state.email}
                   className="border-light"
                 >
                   <ListGroup flush>
                     
-                    <ListGroupItem tag="button" action className="border-light">
+                    <ListGroupItem tag="button" action className="border-light" onClick= {()=>this.signOut()}>
                       <MdExitToApp /> Signout
                     </ListGroupItem>
                   </ListGroup>

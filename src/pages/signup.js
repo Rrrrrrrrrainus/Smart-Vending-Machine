@@ -3,8 +3,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
@@ -65,7 +63,7 @@ export default function SignUp(){
         console.log(state)
         axios.post("https://vending-insights-smu.firebaseapp.com/signup",state)
          .then(response => {
-                if(response.data == 'complete'){
+                if(response.data === 'complete'){
                   window.location.href = '/';
                 }
             }).catch(error => {console.log(error)})

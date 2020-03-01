@@ -1,5 +1,4 @@
 import { AnnouncementCard, TodosCard } from 'components/Card';
-import HorizontalAvatarList from 'components/HorizontalAvatarList';
 import MapWithBubbles from 'components/MapWithBubbles';
 import Page from 'components/Page';
 import ProductMedia from 'components/ProductMedia';
@@ -16,14 +15,13 @@ import {
 } from 'demos/dashboardPage';
 import React from 'react';
 import  MainLayout from '../components/Layout/MainLayout'
-import { Bar, Line } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import {
   MdPersonPin,
   MdRateReview,
   MdShare,
   MdThumbUp,
 } from 'react-icons/md';
-import InfiniteCalendar from 'react-infinite-calendar';
 import {
   Button,
   Card,
@@ -33,9 +31,8 @@ import {
   Col,
   Row,
 } from 'reactstrap';
-import { getColor } from 'utils/colors';
+import {decode,checkExpired} from '../components/authendication'
 
-const today = new Date();
 // const lastWeek = new Date(
 //   today.getFullYear(),
 //   today.getMonth(),
@@ -47,10 +44,19 @@ class DashboardPage extends React.Component {
     // this is needed, because InfiniteCalendar forces window scroll
     window.scrollTo(0, 0);
   }
+  componentWillMount(){
+    if(localStorage.jtwToken){
+      var code = decode()
+      if(!checkExpired(code.exp)){
+        window.location.href='/?session=false';
+      }
+    }
+    else{
+      window.location.href='/';
+    }
+  }
 
   render() {
-    const primaryColor = getColor('primary');
-    const secondaryColor = getColor('secondary');
 
     return (
       <MainLayout breakpoint={this.props.breakpoint}> 
