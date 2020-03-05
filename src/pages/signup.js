@@ -63,7 +63,8 @@ export default function SignUp(){
         console.log(state)
         axios.post("https://vending-insights-smu.firebaseapp.com/signup",state)
          .then(response => {
-                if(response.data === 'complete'){
+           console.log(response)
+                if(response.data === 'ok'){
                   window.location.href = '/';
                 }
             }).catch(error => {console.log(error)})

@@ -7,7 +7,6 @@ import {
   MdArrowDropDownCircle,
   MdBorderAll,
   MdBrush,
-  MdChromeReaderMode,
   MdDashboard,
   MdExtension,
   MdGroupWork,
@@ -47,7 +46,6 @@ const navComponents = [
     exact: false,
     Icon: MdGroupWork,
   },
-  { to: '/forms', name: 'forms', exact: false, Icon: MdChromeReaderMode },
   { to: '/input-groups', name: 'input groups', exact: false, Icon: MdViewList },
   {
     to: '/dropdowns',

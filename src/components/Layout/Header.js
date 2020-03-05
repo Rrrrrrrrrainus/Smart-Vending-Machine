@@ -82,7 +82,7 @@ class Header extends React.Component {
               
             </NavLink>
           </NavItem>
-          <NavItem tag="button"   className="border-light mr-2">
+          <NavItem tag="button"   className="border-light mr-2" onClick={()=>window.location.href='/profile'}>
           <MdPersonPin /> Profile
           </NavItem>
           <NavItem tag="button"  className="border-light mr-2">
