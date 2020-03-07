@@ -1,10 +1,8 @@
-import React,{useEffect} from 'react';
+import React from 'react';
 import PropTypes from 'utils/propTypes';
 
 import classNames from 'classnames';
 
-import axios from 'axios'
-import {decode,checkExpired} from '../components/authendication'
 import userImage from 'assets/img/users/default_user.png';
 
 const Avatar = ({

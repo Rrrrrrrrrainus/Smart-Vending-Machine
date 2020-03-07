@@ -14,7 +14,7 @@ import axios from 'axios'
 import Grid from '@material-ui/core/Grid';
 import {decode,checkExpired} from '../components/authendication'
 import TextField from '@material-ui/core/TextField';
-import default_user from '/Users/rainus/Desktop/fkk/Smart Vending Machine/src/assets/img/users/default_user.png'
+import default_user from '../assets/img/users/default_user.png'
 import FileBase64 from '../components/tobase64';
 
 

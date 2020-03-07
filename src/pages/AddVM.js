@@ -83,6 +83,7 @@ export default function AddVM(props){
                 newData.status = 'Online';
                 newData.vm_id = response.data*1
                 data.push(newData);
+                
                 return { ...prevState, data };
               });
             }).catch(error => {console.log(error)})
@@ -140,8 +141,8 @@ export default function AddVM(props){
         
         
       ],
-      data: [
-      ],
+      data: [{vm_id:10,name:'11',longtitude:1,latitude:1,sales:0, status:'Online'}
+      ]
     });
 
     useEffect(() => {
@@ -165,7 +166,7 @@ export default function AddVM(props){
         }
        });
         
-      }, );
+      }, []);
 
     const movetovm = (vm) =>{
       props.history.push({

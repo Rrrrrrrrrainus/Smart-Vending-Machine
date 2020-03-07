@@ -63,45 +63,10 @@ const tableIcons = {
 class VendingMachine extends React.Component {
   constructor(props) {
     super(props);
-    this.data = {
-      name:"",
-      vm_id:0,
-      longitude:0,
-      latitude:0,
-      sales:0,
-      status:'Online'
-    }
-    
-    this.add_product = {
-      email:"jinxund@smu.edu",
-      vm_id:this.data.vm_id,
-      name:"",
-      sales:"",
-      price:"",
-      inventory:"",
-      purchase_url:""
-    }
-    this.products ={
-      email:"jinxund@smu.edu",
-      vm_id:this.data.vm_id
-    }
-    this.update_product = {
-      email:"jinxund@smu.edu",
-      vm_id:this.data.vm_id,
-      name:"",
-      price:"",
-      inventory:"",
-      purchase_url:""
-    }
-    this.delete_product ={
-      email:"jinxund@smu.edu",
-      vm_id:this.data.vm_id,
-      name:""
-    }
    this.state = {
     columns: [
       {title: 'Name', field: 'name' ,editable:'onAdd'},
-      {title: 'Net Sales', field:'sales',type:'numeric',editable: 'onAdd, onDelete'},
+      {title: 'Net Sales', field:'sales',type:'numeric',editable: 'never'},
       {title: 'Price', field:'price',type:'numeric'},
       {title: 'Inventory', field: 'inventory', },
       {title: 'Purchase URL', field: 'purchase_url', },
@@ -109,13 +74,56 @@ class VendingMachine extends React.Component {
     ],
     data: [
     ],
-    modal:false
+    modal:false,
+    vm_data: {
+      name:"",
+      vm_id:0,
+      longitude:0,
+      latitude:0,
+      sales:0,
+      status:'Online'
+    },
+    
+    add_product : {
+      token: localStorage.jtwToken,
+      email:undefined,
+      vm_id:undefined,
+      name:"",
+      sales:"",
+      price:"",
+      inventory:"",
+      purchase_url:""
+    },
+    products:{
+      token: localStorage.jtwToken,
+      email:undefined,
+      vm_id:undefined
+    },
+    update_product:{
+      token: localStorage.jtwToken,
+      email:undefined,
+      vm_id:undefined,
+      name:"",
+      price:"",
+      inventory:"",
+      purchase_url:""
+    },
+    delete_product:{
+      token: localStorage.jtwToken,
+      email:undefined,
+      vm_id:undefined,
+      name:""
+    },
+    price:{
+      product:undefined,
+      price:undefined
+    }
   }
     
 
   }
 
-  toggle(i){
+  toggle(){
     this.setState({
       modal: !this.state.modal,
   })
@@ -125,7 +133,6 @@ class VendingMachine extends React.Component {
     const url = {
       purchase_url:data.purchase_url
     }
-    console.log(url)
     this.priceHandler(url)
 
   }
@@ -139,27 +146,10 @@ class VendingMachine extends React.Component {
     return vars; 
   }
 
-  getVM_data(){
-    var result = this.getUrlVars()
-    if(result['vm_id'] === undefined && this.props.location.data === undefined){
-      window.location.href = '/dashboard'
-    }
-    else if(result['vm_id'] === undefined){
-      this.data = this.props.location.data
-    }
-    else{
-      this.data.vm_id = result['vm_id']
-      this.data.name = result['name']
-      this.data.longitude = result['longitude']
-      this.data.latitude = result['latitude']
-      this.data.sales = result['sales']
-      this.data.status = result['status']
-    }
-  }
-
   getHandler = (e) =>{
-    axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallproduct",this.products)
+    axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallproduct",this.state.products)
      .then(response => {
+          console.log(response)
             var products = response.data
             var product_info = []
             var keys = Object.keys(products)
@@ -179,11 +169,20 @@ class VendingMachine extends React.Component {
   priceHandler = (url,e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url)
     .then(response => {
-            console.log(response)
+            this.setState(prevState => {
+              var price = {...prevState.price};
+              price.product= response.data.title
+              price.price = response.data.price
+              return { ...prevState, price };
+
+             } ,()=>{
+               console.log(1)
+               this.toggle()})
         }).catch(error => {console.log(error)})
   }
 submitHandler = (newData,e) =>{
-  axios.post("https://vending-insights-smu.firebaseapp.com/vm/addproduct",this.add_product)
+  console.log(this.state.add_product)
+  axios.post("https://vending-insights-smu.firebaseapp.com/vm/addproduct",this.state.add_product)
    .then(response => {
       this.setState(prevState => {
           const data = [...prevState.data];
@@ -195,14 +194,14 @@ submitHandler = (newData,e) =>{
 }
 
 updateHandler = (newData,e) =>{
-  axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.update_product)
+  axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.state.update_product)
    .then(response => {
       console.log(response)
       }).catch(error => {console.log(error.response)})
 }
 deleteHandler = (newData,e) =>{
   axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deleteproduct",
-  {data:this.delete_product})
+  {data:this.state.delete_product})
    .then(response => {
       console.log(response)
       }).catch(error => {console.log(error.response)})
@@ -215,26 +214,44 @@ deleteHandler = (newData,e) =>{
         window.location.href='/?session=false';
       }
       else{
-        this.getVM_data()
-    var promise = new Promise( (resolve, reject) => {
-    
-      if (this.data.vm_id !== 0) {
-       resolve("Promise resolved successfully");
-      }
-      else {
-       reject(Error("Promise rejected"));
-      }
-     });
-    
-     promise.then( result => {
-      this.products.vm_id = this.data.vm_id
-      this.add_product.vm_id = this.data.vm_id
-      this.update_product.vm_id = this.data.vm_id
-      this.delete_product.vm_id = this.data.vm_id
-      this.getHandler()
-     }, function(error) {
-      
-     });
+        var result = this.getUrlVars()
+        var temp = {}
+        if(result['vm_id'] === undefined && this.props.location.data === undefined){
+          window.location.href = '/dashboard'
+        }
+        else if(result['vm_id'] === undefined){
+          temp= this.props.location.data
+        }
+        else{
+          const sample = {
+            vm_id: result['vm_id'],
+            name:result['name'],
+            longitude:result['longitude'],
+            latitude:result['latitude'],
+            sales:result['sales'],
+            status:result['status']
+          }
+          temp = sample
+        }
+      this.setState(prevState => {
+        var vm_data = {...prevState.vm_data};
+        vm_data = temp
+        var products = {...prevState.products};
+        products.email = code.email
+        products.vm_id = temp.vm_id
+        var add_product = {...prevState.add_product};
+        add_product.email = code.email
+        add_product.vm_id = temp.vm_id
+        var delete_product = {...prevState.delete_product};
+        delete_product.email = code.email
+        delete_product.vm_id = temp.vm_id
+        var update_product = {...prevState.update_product};
+        update_product.email = code.email
+        update_product.vm_id = temp.vm_id
+        return { ...prevState, vm_data,products,add_product,delete_product,update_product };
+      },()=>{
+        this.getHandler()
+      });
       }
     }
     else{
@@ -305,11 +322,16 @@ deleteHandler = (newData,e) =>{
           onRowAdd: newData =>
             new Promise(resolve => {
               setTimeout(() => {
-                this.add_product.name = newData.name
-                this.add_product.price = newData.price
-                this.add_product.inventory = newData.inventory
-                this.add_product.purchase_url = newData.purchase_url
-                this.submitHandler(newData)
+                this.setState(prevState => {
+                  var add_product = {...prevState.add_product};
+                  add_product.name = newData.name
+                  add_product.price = newData.price
+                  add_product.inventory = newData.inventory
+                  add_product.purchase_url = newData.purchase_url
+                  return { ...prevState, add_product };
+                },()=>{
+                  this.submitHandler(newData)
+                });
                 resolve();
               }, 600);
             }),
@@ -321,13 +343,14 @@ deleteHandler = (newData,e) =>{
                   this.setState(prevState => {
                     const data = [...prevState.data];
                     data[data.indexOf(oldData)] = newData;
-                    this.update_product.name = newData.name
-                    this.update_product.price = newData.price
-                    this.update_product.inventory = newData.inventory
-                    this.update_product.purchase_url = newData.purchase_url
-                    this.updateHandler()
-                    return { ...prevState, data };
-                  });
+                    var update_product = {...prevState.update_product};
+                    update_product.name = newData.name
+                    update_product.price = newData.price
+                    update_product.inventory = newData.inventory
+                    update_product.purchase_url = newData.purchase_url
+                    
+                    return { ...prevState, data,update_product };
+                  },()=>{this.updateHandler()});
                 }
               }, 600);
             }),
@@ -338,10 +361,11 @@ deleteHandler = (newData,e) =>{
                 this.setState(prevState => {
                   const data = [...prevState.data];
                   data.splice(data.indexOf(oldData), 1);
-                  this.delete_product.name = oldData.name
-                  this.deleteHandler()
-                  return { ...prevState, data };
-                });
+                  var delete_product = {...prevState.delete_product};
+                  delete_product.name = oldData.name
+                  
+                  return { ...prevState, data ,delete_product};
+                },()=>{this.deleteHandler()});
               }, 600);
             }),
             
@@ -360,12 +384,12 @@ deleteHandler = (newData,e) =>{
         <Card>
             <CardImg top src={userImage} height = '400'/>
             <CardBody>
-            <CardTitle>{this.data.name}</CardTitle>
+            <CardTitle>{this.state.vm_data.name}</CardTitle>
               <CardText>
                 Owned by SW Vault <br/>
-                Vending Machine ID: {this.data.vm_id} <br/>
-                Vending Machine Location: (Longitude: {this.data.longitude}, Latitude: {this.data.latitude})<br/>
-                Current Net Sales: {this.data.sales} <br/>
+                Vending Machine ID: {this.state.vm_data.vm_id} <br/>
+                Vending Machine Location: (Longitude: {this.state.vm_data.longitude}, Latitude: {this.state.vm_data.latitude})<br/>
+                Current Net Sales: {this.state.vm_data.sales} <br/>
                 Vending Machine Status: Online
               </CardText>
             </CardBody>
@@ -402,9 +426,10 @@ deleteHandler = (newData,e) =>{
     isOpen={this.state.modal}
     // toggle ={ this.toggle("fkk")}
     >
-    <ModalHeader>{this.data.name}</ModalHeader>
+    <ModalHeader>{this.state.vm_data.name}</ModalHeader>
     <ModalBody>
-
+    Product Name: {this.state.price.product}
+    Product Price: {this.state.price.price}
     </ModalBody>
     <ModalFooter>
       <Button color="secondary" onClick={() => this.toggle()}>
