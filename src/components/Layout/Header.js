@@ -1,6 +1,7 @@
 import Avatar from 'components/Avatar';
 import { UserCard } from 'components/Card';
 import React from 'react';
+import axios from 'axios'
 import {
   MdClearAll,
   MdExitToApp,
@@ -21,6 +22,7 @@ import {
   PopoverBody,
 } from 'reactstrap';
 import bn from 'utils/bemnames';
+import default_user from '../../assets/img/users/default_user.png'
 
 import {decode,checkExpired} from '../authendication'
 
@@ -31,7 +33,9 @@ const bem = bn.create('header');
 class Header extends React.Component {
   state = {
     isOpenUserCardPopover: false,
-    email:undefined
+    email:undefined,
+    token: localStorage.jtwToken,
+    image: default_user
   };
 
 
@@ -54,9 +58,25 @@ class Header extends React.Component {
       var code = decode()
       this.setState({
         email:code.email
+      },()=>{
+        this.getHandler()
       })
   }
   }
+
+  getHandler = (e) =>{
+    const auth = {
+      email:this.state.email,
+      token: this.state.token
+    }
+    axios.post("https://vending-insights-smu.firebaseapp.com/getimage",auth)
+     .then(response => {
+       if(response.data.image !==undefined){
+       this.setState({image:response.data.image},()=>{
+          document.getElementById('avatar').src = this.state.image
+       })}
+        }).catch(error => {console.log(error)})
+}
 
   signOut(){
     delete localStorage.jtwToken
@@ -93,6 +113,7 @@ class Header extends React.Component {
           <NavItem>
             <NavLink id="Popover2">
               <Avatar
+                id = 'avatar'
                 onClick={this.toggleUserCardPopover}
                 className="can-click"
               />
@@ -107,7 +128,9 @@ class Header extends React.Component {
             >
               <PopoverBody className="p-0 border-light">
                 <UserCard
+                  
                   title={this.state.email}
+                  avatar = {this.state.image}
                   className="border-light"
                 >
                   <ListGroup flush>

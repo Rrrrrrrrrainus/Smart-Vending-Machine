@@ -173,7 +173,7 @@ export default function SignUp(){
             id = "submitb"
             className={classes.submit}
             hidden = {true}
-          //  href='\'
+            href='\'
           >
             Submit
           </Button>
