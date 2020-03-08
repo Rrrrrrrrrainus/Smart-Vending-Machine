@@ -32,11 +32,13 @@ import {
   CardImg,
   CardBody,
   CardText,
+  Table,
   Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
   Button,
+  UncontrolledCollapse,
   Spinner
 } from 'reactstrap';
 import Page from 'components/Page';
@@ -396,14 +398,34 @@ deleteHandler = (newData,e) =>{
         <Card>
             <CardImg top src={userImage} height = '400'/>
             <CardBody>
-            <CardTitle>{this.state.vm_data.name}</CardTitle>
+            <Button className = "text-center" tag="h4" color="light" size="lg" block id="toggler">{this.state.vm_data.name}</Button>
+            <UncontrolledCollapse toggler="#toggler">
+              <Table borderless>
+                <thead>
+                  <tr>
+                    <th>Vending Machine ID: </th>
+                    <td>{this.state.vm_data.vm_id}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th>Vending Machine Location: </th>
+                    <td>Longitude: {this.state.vm_data.longitude}, Latitude: {this.state.vm_data.latitude}</td>
+                  </tr>
+                  <tr>
+                    <th>Current Net Sales: </th>
+                    <td>{this.state.vm_data.sales}</td>
+                  </tr>
+                  <tr>
+                    <th>Vending Machine Status: </th>
+                    <td>Online</td>
+                  </tr>
+                </tbody>
+              </Table>
               <CardText>
-                Owned by SW Vault <br/>
-                Vending Machine ID: {this.state.vm_data.vm_id} <br/>
-                Vending Machine Location: (Longitude: {this.state.vm_data.longitude}, Latitude: {this.state.vm_data.latitude})<br/>
-                Current Net Sales: {this.state.vm_data.sales} <br/>
-                Vending Machine Status: Online
+                <small className="text-muted">Owned by SW Vault</small>
               </CardText>
+              </UncontrolledCollapse>
             </CardBody>
           </Card>
           </Col>
