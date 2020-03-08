@@ -13,6 +13,7 @@ import {
   todosData,
   userProgressTableData,
 } from 'demos/dashboardPage';
+import axios from 'axios'
 import React from 'react';
 import  MainLayout from '../components/Layout/MainLayout'
 import { Line } from 'react-chartjs-2';
@@ -40,6 +41,21 @@ import {decode,checkExpired} from '../components/authendication'
 // );
 
 class DashboardPage extends React.Component {
+  constructor(props){
+    super(props);
+    this.state={
+      year: undefined,
+      month:undefined,
+      email: undefined,
+      token:localStorage.jtwToken,
+      count:undefined,
+      monthly_sale:undefined,
+      pre_monthly_sale:undefined,
+      monthly_purchase:undefined,
+      pre_monthly_purchase:undefined,
+
+    }
+  }
   componentDidMount() {
     // this is needed, because InfiniteCalendar forces window scroll
     window.scrollTo(0, 0);
@@ -50,11 +66,43 @@ class DashboardPage extends React.Component {
       if(!checkExpired(code.exp)){
         window.location.href='/?session=false';
       }
+      else{
+        let today = new Date()
+        this.setState({
+          year:today.getFullYear(),
+          month:today.getMonth()+1,
+          email:code.email,
+        },()=>{
+            this.getHandler()
+        })
+        
+      }
     }
     else{
       window.location.href='/';
     }
   }
+
+  getHandler = (e) =>{
+    
+    const info = {
+      year: this.state.year,
+      month:this.state.month,
+      email: this.state.email,
+      // token:localStorage.jtwToken
+    }
+    axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo",info)
+     .then(response => {
+           this.setState({
+             count:response.data.count,
+             monthly_sale:response.data.total_sale,
+             pre_monthly_sale: 100*response.data.previous_total_sale/response.data.total_sale,
+             monthly_purchase: response.data.purchase_count,
+             pre_monthly_purchase: 100*response.data.previous_purchase_count/response.data.purchase_count
+           })
+        }).catch(error => {console.log(error)})
+}
+
 
   render() {
 
@@ -69,7 +117,7 @@ class DashboardPage extends React.Component {
           <Col lg={3} md={6} sm={6} xs={12}>
             <NumberWidget
               title="Total Vending Machines"
-              number="9800"
+              number={this.state.count}
               color="secondary"
               progress={{
                 value: 100,
@@ -82,10 +130,10 @@ class DashboardPage extends React.Component {
             <NumberWidget
               title="Monthly Net Sales"
               subtitle="This month"
-              number="1M"
+              number={this.state.monthly_sale}
               color="secondary"
               progress={{
-                value: 80,
+                value: this.state.pre_monthly_sale,
                 label: 'Last month',
               }}
             />
@@ -95,10 +143,10 @@ class DashboardPage extends React.Component {
             <NumberWidget
               title="Monthly Purchases"
               subtitle="This month"
-              number="50k"
+              number={this.state.monthly_purchase}
               color="secondary"
               progress={{
-                value: 92,
+                value: this.state.pre_monthly_purchase,
                 label: 'Last month',
               }}
             />

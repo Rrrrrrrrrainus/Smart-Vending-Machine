@@ -71,12 +71,13 @@ export default function SignInSide() {
   const classes = useStyles();
 
   const user = {
-    email:"",
+    email:undefined,
     password:""
 }
 
   const [state,setState]  = React.useState({
-    data:false
+    data:false,
+    check:false
   });
     const error = {
         iserror : false,
@@ -89,14 +90,28 @@ export default function SignInSide() {
         user[name]=value;
     }
 
+    function checkHandler(event, isChecked, value){
+
+        setState({check:isChecked})
+    }
+
     const submitHandler = (e) =>{
-        console.log(state)
+      user.email = document.getElementById('email').value
+      user.password =  document.getElementById('password').value
+
         axios.post("https://vending-insights-smu.firebaseapp.com/login",user)
         .then(response => {
           console.log(response)
                 if(response.data !== 'no'){
                     localStorage.setItem('jtwToken',response.data.token)
                     localStorage.setItem('auth',response.data.auth)
+                    if(state.check){
+                      localStorage.setItem('email',user.email)
+                    }
+                    else{
+                      if(localStorage.email){
+                        delete localStorage.email}
+                    }
                     window.location.href = '/dashboard';
                     
                 }
@@ -109,13 +124,21 @@ export default function SignInSide() {
     }
 
     useEffect(() => {
+      if(localStorage.email){
+        document.getElementById('email').value = localStorage.email
+        setState({
+          check:true
+        })
+        
+      }
       if(localStorage.jtwToken){
         var code = decode()
         if(checkExpired(code.exp)){
           window.location.href='/dashboard';
         }
+        
       }
-    });
+    },[]);
 
     function checkSession(){
       var result = getUrlVars();
@@ -169,8 +192,8 @@ export default function SignInSide() {
             /><div>
             <span className='error' hidden={true} align='left' color='red'>{error.errormsg}</span></div>
             <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              control={<Checkbox checked={state.check} id ='check' color="primary" onChange = {checkHandler} />}
+              label="Remember me" 
             />
             <Button
             onClick = {submitHandler}

@@ -36,7 +36,8 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  Button
+  Button,
+  Spinner
 } from 'reactstrap';
 import Page from 'components/Page';
 
@@ -116,7 +117,8 @@ class VendingMachine extends React.Component {
     },
     price:{
       product:undefined,
-      price:undefined
+      price:undefined,
+      url:undefined
     }
   }
     
@@ -124,8 +126,14 @@ class VendingMachine extends React.Component {
   }
 
   toggle(){
+    var empty={
+      product:undefined,
+      price:undefined,
+      url:undefined
+    }
     this.setState({
       modal: !this.state.modal,
+      price:empty
   })
   };
 
@@ -133,6 +141,7 @@ class VendingMachine extends React.Component {
     const url = {
       purchase_url:data.purchase_url
     }
+    this.toggle()
     this.priceHandler(url)
 
   }
@@ -169,15 +178,18 @@ class VendingMachine extends React.Component {
   priceHandler = (url,e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url)
     .then(response => {
+      
             this.setState(prevState => {
               var price = {...prevState.price};
               price.product= response.data.title
               price.price = response.data.price
+              price.url = url.purchase_url
               return { ...prevState, price };
 
-             } ,()=>{
-               console.log(1)
-               this.toggle()})
+             },()=>{
+               document.getElementById('search').hidden = true
+               document.getElementById('info').hidden = false
+             })
         }).catch(error => {console.log(error)})
   }
 submitHandler = (newData,e) =>{
@@ -428,8 +440,16 @@ deleteHandler = (newData,e) =>{
     >
     <ModalHeader>{this.state.vm_data.name}</ModalHeader>
     <ModalBody>
-    Product Name: {this.state.price.product}
-    Product Price: {this.state.price.price}
+      <div id = 'search' hidden = {false}
+      style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
+      Searching  
+      <Spinner color="primary" />
+      </div>
+      <div id = 'info' hidden = {true}>
+    Product Name: {this.state.price.product}<br/>
+    Product Price: {this.state.price.price}<br/>
+    Product URL:{this.state.price.url}
+    </div>
     </ModalBody>
     <ModalFooter>
       <Button color="secondary" onClick={() => this.toggle()}>
