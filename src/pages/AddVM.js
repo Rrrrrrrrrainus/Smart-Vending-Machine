@@ -141,7 +141,7 @@ export default function AddVM(props){
         
         
       ],
-      data: [{vm_id:10,name:'11',longtitude:1,latitude:1,sales:0, status:'Online'}
+      data: [
       ]
     });
 

@@ -286,7 +286,20 @@ deleteHandler = (newData,e) =>{
       >
           <Row>
 
-          <Col lg={4}>
+          <Col lg={3}>
+            <NumberWidget
+              title="Toal Products"
+              subtitle="Number"
+              number= '10'
+              color="secondary"
+              progress={{
+                value: 100,
+                label:"Products"
+              }}
+            />
+          </Col>
+
+          <Col lg={3}>
             <NumberWidget
               title="Monthly Net Sales"
               subtitle="This month"
@@ -299,7 +312,7 @@ deleteHandler = (newData,e) =>{
             />
           </Col>
 
-          <Col lg={4} >
+          <Col lg={3} >
             <NumberWidget
               title="Monthly Purchases"
               subtitle="This month"
@@ -311,7 +324,7 @@ deleteHandler = (newData,e) =>{
               }}
             />
           </Col >
-          <Col lg={4} >
+          <Col lg={3} >
           <NumberWidget
               title="Monthly Profits"
               subtitle="This month"

@@ -25,6 +25,7 @@ const ProgressPage = React.lazy(() => import('pages/ProgressPage'));
 const TablePage = React.lazy(() => import('pages/TablePage'));
 const TypographyPage = React.lazy(() => import('pages/TypographyPage'));
 const LandingPage = React.lazy(() => import('../src/Landing Pge/LandingPage'));
+const HelpPage = React.lazy(() => import('pages/Help'));
 
 const getBasename = () => {
   return `/${process.env.PUBLIC_URL.split('/').pop()}`;
@@ -51,6 +52,7 @@ class App extends React.Component {
                 <Route exact path="/alerts" component={AlertPage} />
                 <Route exact path="/tables" component={TablePage} />
                 <Route exact path="/badges" component={BadgePage} />
+                <Route exact path="/help" component={HelpPage} />
                 <Route
                   exact
                   path="/button-groups"
