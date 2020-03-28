@@ -4,7 +4,7 @@ import { Map, Marker, InfoWindow,GoogleApiWrapper } from 'google-maps-react';
 import {decode} from '../authendication'
 
 const mapStyles = {
-  width: '98%',
+  width: '94%',
   height: '100%'
 };
 

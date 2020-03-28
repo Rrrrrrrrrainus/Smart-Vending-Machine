@@ -1,7 +1,7 @@
 import React from 'react';
 import  MainLayout from '../components/Layout/MainLayout'
 import {Line,Pie } from 'react-chartjs-2';
-import {revenue,pie_sale} from 'data/chartdata';
+import {pie_sale} from 'data/chartdata';
 import userImage from 'assets/img/products/2.jpeg';
 import { NumberWidget } from 'components/Widget';
 import MaterialTable from 'material-table';
@@ -23,11 +23,11 @@ import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
 import {decode,checkExpired} from '../components/authendication'
+import { getColor } from '../utils/colors';
 import {
   Row,
   Col,
   Card,
-  CardTitle,
   CardHeader,
   CardImg,
   CardBody,
@@ -121,10 +121,60 @@ class VendingMachine extends React.Component {
       product:undefined,
       price:undefined,
       url:undefined
-    }
-  }
-    
+    },
+    count:undefined,
+      monthly_sale:undefined,
+      pre_monthly_sale:undefined,
+      monthly_purchase:undefined,
+      pre_monthly_purchase:undefined,
+      monthly_profit:undefined,
+      pre_monethly_profit:undefined,
+      weekly_revenue: {
+        labels: [0,0,0,0,0,0,0],
+        datasets: [
+          {
+            label: 'Net Sales',
+            borderColor: '#6a82fb',
+            data: [],
+            borderWidth: 1,
+            fill:true
+          }],},
 
+          pie_sale:{
+            datasets: [
+              {
+                data: [0,0],
+                backgroundColor: [
+                  getColor('secondary'),
+                  getColor('success'),
+                ],
+                label: 'Product Sales',
+              },
+            ],
+            labels: ['Coke','Sprite']
+          },
+
+        colors:[getColor('primary'),
+        getColor('secondary'),
+        getColor('success'),
+        getColor('info'),
+        getColor('danger'),
+        getColor('blue'),
+        getColor('purple'),
+        getColor('pink'),
+        getColor('red'),
+        getColor('indigo'),
+        getColor('orange'),
+        getColor('yellow'),
+        getColor('green'),
+        getColor('teal'),
+        getColor('cyan'),
+        getColor('white'),
+        getColor('gray'),
+        getColor('gray-dark'),
+        getColor('light'),
+        getColor('dark')
+      ]}
   }
 
   toggle(){
@@ -160,7 +210,6 @@ class VendingMachine extends React.Component {
   getHandler = (e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallproduct",this.state.products)
      .then(response => {
-          console.log(response)
             var products = response.data
             var product_info = []
             var keys = Object.keys(products)
@@ -175,6 +224,88 @@ class VendingMachine extends React.Component {
                 return { ...prevState, data };
               });
         }).catch(error => {console.log(error)})
+}
+
+saleHandler = (e) =>{
+  const data = {
+    email:this.state.products.email,
+    vm_id: this.state.vm_data.vm_id,
+    days: 7
+  }
+  axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getsevendaysvmsales",data)
+   .then(response => {
+     var dates = response.data.date
+            
+          this.setState(prevState => {
+            var revenue = {...prevState.weekly_revenue};
+            var keys = Object.keys(dates)
+            for(var i = 0; i < keys.length; i++) { 
+                var key = (keys[i]) ; 
+                var d = dates[key]
+                var newdate = d.month + '/' +d.day
+                revenue.labels[i] = newdate
+            }
+            revenue.datasets[0].data = response.data.sale
+            return { ...prevState, revenue };
+
+           })
+      }).catch(error => {console.log(error)})
+}
+
+pieHandler = (e) =>{
+  const data = {
+    email:this.state.products.email,
+    vm_id: this.state.vm_data.vm_id,
+    days: 7
+  }
+  axios.post("https://vending-insights-smu.firebaseapp.com/vm/pie",data)
+   .then(response => {
+          console.log(response)  
+          this.setState(prevState => {
+            var pie = {...prevState.pie_sale};
+            var keys = Object.keys(response.data)
+            for(var i = 0; i < keys.length; i++) { 
+                var key = (keys[i]) ; 
+             //   if(i ===0){
+                  pie.labels[i] = (key)
+                // }
+                // else{
+                //   pie.labels.push(key)
+                // }
+                pie.datasets[0].data[i] = (response.data[key])
+                pie.datasets[0].backgroundColor.push(this.state.colors[i])
+
+            }
+            console.log(pie)
+            return { ...prevState, pie };
+
+           })
+      }).catch(error => {console.log(error)})
+}
+
+
+infoHandler = (e) =>{
+  let today = new Date()
+
+  const info = {
+    year: today.getFullYear(),
+    month:today.getMonth()+1,
+    email: this.state.products.email,
+    token:localStorage.jtwToken,
+    vm_id: this.state.vm_data.vm_id
+  }
+  axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo2",info)
+   .then(response => {
+         this.setState({
+           count:response.data.count,
+           monthly_sale:response.data.total_sale,
+             pre_monthly_sale: 100*response.data.total_sale/response.data.previous_total_sale,
+             monthly_purchase: response.data.purchase_count,
+             pre_monthly_purchase: 100*response.data.purchase_count/response.data.previous_purchase_count,
+             monthly_profit: response.data.profit,
+             pre_monethly_profit:100*response.data.profit/response.data.previous_profit
+         })
+      }).catch(error => {console.log(error)})
 }
 
   priceHandler = (url,e) =>{
@@ -265,6 +396,9 @@ deleteHandler = (newData,e) =>{
         return { ...prevState, vm_data,products,add_product,delete_product,update_product };
       },()=>{
         this.getHandler()
+        this.infoHandler()
+        this.saleHandler()
+        this.pieHandler()
       });
       }
     }
@@ -290,7 +424,7 @@ deleteHandler = (newData,e) =>{
             <NumberWidget
               title="Toal Products"
               subtitle="Number"
-              number= '10'
+              number= {this.state.count}
               color="secondary"
               progress={{
                 value: 100,
@@ -303,10 +437,10 @@ deleteHandler = (newData,e) =>{
             <NumberWidget
               title="Monthly Net Sales"
               subtitle="This month"
-              number="1M"
+              number={this.state.monthly_sale}
               color="secondary"
               progress={{
-                value: 80,
+                value: this.state.pre_monthly_sale,
                 label: 'Last month',
               }}
             />
@@ -316,10 +450,10 @@ deleteHandler = (newData,e) =>{
             <NumberWidget
               title="Monthly Purchases"
               subtitle="This month"
-              number="50k"
+              number={this.state.monthly_purchase}
               color="secondary"
               progress={{
-                value: 92,
+                value: this.state.pre_monthly_purchase,
                 label: 'Last month',
               }}
             />
@@ -328,10 +462,10 @@ deleteHandler = (newData,e) =>{
           <NumberWidget
               title="Monthly Profits"
               subtitle="This month"
-              number="21k"
+              number={this.state.monthly_profit}
               color="secondary"
               progress={{
-                value: 98,
+                value: this.state.pre_monethly_profit,
                 label: 'Last month',
               }}
             />
@@ -452,7 +586,7 @@ deleteHandler = (newData,e) =>{
                     <small className="text-muted text-capitalize">Recent 7 Days</small>
                 </CardHeader>
                 <CardBody>
-                    <Line data={revenue.weekly_revenue}/>
+                    <Line data={this.state.weekly_revenue}/>
                 </CardBody>
                 </Card>          
           </Col>
@@ -462,7 +596,7 @@ deleteHandler = (newData,e) =>{
             <CardHeader>Product Sales{' '}
                     <small className="text-muted text-capitalize">Recent 7 Days</small></CardHeader>
             <CardBody>
-              <Pie data={pie_sale} />
+              <Pie className = 'pie' data = {this.state.pie_sale}/>
             </CardBody>
           </Card>
             </Col>

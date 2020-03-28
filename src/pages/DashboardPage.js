@@ -53,6 +53,8 @@ class DashboardPage extends React.Component {
       pre_monthly_sale:undefined,
       monthly_purchase:undefined,
       pre_monthly_purchase:undefined,
+      monthly_profit:undefined,
+      pre_monethly_profit:undefined
 
     }
   }
@@ -94,11 +96,14 @@ class DashboardPage extends React.Component {
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo",info)
      .then(response => {
            this.setState({
+             
              count:response.data.count,
              monthly_sale:response.data.total_sale,
-             pre_monthly_sale: 100*response.data.previous_total_sale/response.data.total_sale,
+             pre_monthly_sale: 100*response.data.total_sale/response.data.previous_total_sale,
              monthly_purchase: response.data.purchase_count,
-             pre_monthly_purchase: 100*response.data.previous_purchase_count/response.data.purchase_count
+             pre_monthly_purchase: 100*response.data.purchase_count/response.data.previous_purchase_count,
+             monthly_profit: response.data.profit,
+             pre_monethly_profit:100*response.data.profit/response.data.previous_profit
            })
         }).catch(error => {console.log(error)})
 }
@@ -156,10 +161,10 @@ class DashboardPage extends React.Component {
             <NumberWidget
               title="Monthly Profits"
               subtitle="This month"
-              number="21k"
+              number={this.state.monthly_profit}
               color="secondary"
               progress={{
-                value: 98,
+                value: this.state.pre_monethly_profit,
                 label: 'Last month',
               }}
             />
