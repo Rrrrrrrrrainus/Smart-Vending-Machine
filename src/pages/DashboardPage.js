@@ -49,6 +49,7 @@ class DashboardPage extends React.Component {
       email: undefined,
       token:localStorage.jtwToken,
       count:undefined,
+      non_count:undefined,
       monthly_sale:undefined,
       pre_monthly_sale:undefined,
       monthly_purchase:undefined,
@@ -95,9 +96,11 @@ class DashboardPage extends React.Component {
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo",info)
      .then(response => {
+       console.log(response)
            this.setState({
              
              count:response.data.count,
+             non_count:100,
              monthly_sale:response.data.total_sale,
              pre_monthly_sale: 100*response.data.total_sale/response.data.previous_total_sale,
              monthly_purchase: response.data.purchase_count,
@@ -105,6 +108,41 @@ class DashboardPage extends React.Component {
              monthly_profit: response.data.profit,
              pre_monethly_profit:100*response.data.profit/response.data.previous_profit
            })
+           if(response.data.count === 0 || response.data.count === null){
+            this.setState(prevState => {
+              var non_count = prevState.non_count;
+              non_count = 100
+              return { ...prevState, non_count };
+            })
+           }
+           if(response.data.previous_total_sale === 0 || response.data.previous_total_sale === null){
+            this.setState(prevState => {
+              var pre_monthly_sale = prevState.pre_monthly_sale;
+              pre_monthly_sale = 100
+              return { ...prevState, pre_monthly_sale };
+            })
+           }
+           if(response.data.total_sale === null){
+            this.setState(prevState => {
+              var monthly_sale = prevState.monthly_sale;
+              monthly_sale = 0
+              return { ...prevState, monthly_sale };
+            })
+           }
+           if(response.data.previous_purchase_count === 0 || response.data.previous_purchase_count === null){
+            this.setState(prevState => {
+              var pre_monthly_purchase = prevState.pre_monthly_purchase;
+              pre_monthly_purchase = 100
+              return { ...prevState, pre_monthly_purchase };
+            })
+           }
+           if(response.data.previous_profit === 0 || response.data.previous_profit === null){
+            this.setState(prevState => {
+              var pre_monethly_profit = prevState.pre_monethly_profit;
+              pre_monethly_profit = 100
+              return { ...prevState, pre_monethly_profit };
+            })
+           }
         }).catch(error => {console.log(error)})
 }
 
@@ -125,7 +163,7 @@ class DashboardPage extends React.Component {
               number={this.state.count}
               color="secondary"
               progress={{
-                value: 100,
+                value: this.state.non_count,
                 label: 'Active',
               }}
             />

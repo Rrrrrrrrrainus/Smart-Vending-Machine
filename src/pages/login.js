@@ -70,35 +70,75 @@ function getUrlVars() {
 export default function SignInSide() {
   const classes = useStyles();
 
-  const user = {
-    email:undefined,
+const [user,setUser]  = React.useState({
+  email:undefined,
     password:""
-}
+});
 
   const [state,setState]  = React.useState({
     data:false,
     check:false
   });
-    const error = {
-        iserror : false,
-        errormsg: "Invalid Email Address or Password"
-    }
+
+  const [error,setError]  = React.useState({
+    email_error:"",
+    emailiserror:false,
+    password_error:"",
+    passiserror:false
+  });
     const changeHandler = (e) => {
-        const name = e.target.name;
-        const value = e.target.value;
-        
-        user[name]=value;
+      setUser({...user, [e.target.name]: e.target.value})
+
     }
 
     function checkHandler(event, isChecked, value){
-
-        setState({check:isChecked})
+      setState(prevState => {
+        var check = prevState.check;
+        check = isChecked
+        return { ...prevState, check};
+      }
+      )
     }
 
     const submitHandler = (e) =>{
-      user.email = document.getElementById('email').value
-      user.password =  document.getElementById('password').value
-
+      console.log(user)
+      if(user.email === ""){
+        setError(prevState => {
+          var email_error = prevState.email_error;
+          var emailiserror = prevState.emailiserror;
+          email_error = "Your email address cannot be empty"
+          emailiserror = true
+          return { ...prevState, email_error,emailiserror };
+        });
+      }
+      if(user.password === ""){
+        setError(prevState => {
+          var password_error = prevState.password_error;
+          var passiserror = prevState.passiserror;
+          password_error = "Your password cannot be empty"
+          passiserror = true
+          return { ...prevState, password_error,passiserror };
+        });
+      }
+      if(error.emailiserror && user.email !== ""){
+        setError(prevState => {
+          var email_error = prevState.email_error;
+          var emailiserror = prevState.emailiserror;
+          email_error = ""
+          emailiserror = false
+          return { ...prevState, email_error,emailiserror };
+        });
+      }
+      if(error.passiserror&& user.password !== ""){
+        setError(prevState => {
+          var password_error = prevState.password_error;
+          var passiserror = prevState.passiserror;
+          password_error = ""
+          passiserror = false
+          return { ...prevState, password_error,passiserror };
+        });
+      }
+      if(user.email !== "" && user.password !== ""){
         axios.post("https://vending-insights-smu.firebaseapp.com/login",user)
         .then(response => {
           console.log(response)
@@ -116,16 +156,24 @@ export default function SignInSide() {
                     
                 }
                 else{
-                    document.getElementsByClassName("error")[0].hidden= false;
+                  setError(prevState => {
+                    var password_error = prevState.password_error;
+                    var passiserror = prevState.passiserror;
+                    password_error = "Your input information doesn't match, try again "
+                    passiserror = true
+                    return { ...prevState, password_error,passiserror };
+                  });
                      
                 }
 
             }).catch(error => {console.log(error)})
     }
+  }
 
     useEffect(() => {
       if(localStorage.email){
         document.getElementById('email').value = localStorage.email
+        setUser({...user, email:localStorage.email})
         setState({
           check:true
         })
@@ -144,8 +192,10 @@ export default function SignInSide() {
       var result = getUrlVars();
       if(result['session']){
         if(!state.data){
-          setState({
-            data : true
+          setState(prevState => {
+            var data = prevState.data;
+            data = true
+            return { ...prevState, data};
           }
           )
       }
@@ -176,6 +226,8 @@ export default function SignInSide() {
               name="email"
               autoComplete="email"
               autoFocus
+              error ={error.emailiserror}
+              helperText = {error.email_error}
               onChange= {changeHandler}
             />
             <TextField
@@ -188,6 +240,8 @@ export default function SignInSide() {
               type="password"
               id="password"
               autoComplete="current-password"
+              error ={error.passiserror}
+                helperText = {error.password_error}
               onChange= {changeHandler}
             /><div>
             <span className='error' hidden={true} align='left' color='red'>{error.errormsg}</span></div>

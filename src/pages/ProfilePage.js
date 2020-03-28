@@ -127,7 +127,6 @@ updateHandler = (e) =>{
   {this.state.user.username}<br/>
         </div>
         <div className = "description">
-        When it comes to Zhoushuai playing games that you make sure the zhuai is up-to-date, however, from time to time shuai has been caught out by xiaomei in the arrive on university, such as the shuai that made it possible for a hacker to access all the settings on a Mac just by logging in as root in System Preferences.
         
         <hr/>
         <Form>
@@ -183,14 +182,13 @@ updateHandler = (e) =>{
             <br/>
             <Grid item xs={12} >
               <FormGroup>
-                  <Label for="exampleFile">File</Label>
+                  <Label for="exampleFile">New Image</Label>
                   <div></div>
                   <FileBase64
                   multiple={ true }
                   onDone={ this.getFiles.bind(this) } />
                   <FormText color="muted">
-                    This is some placeholder block-level help text for the above
-                    input. It's a bit lighter and easily wraps to a new line.
+                    Only valid image formats are accepted.
                   </FormText>
                 </FormGroup>
             </Grid>
@@ -199,6 +197,8 @@ updateHandler = (e) =>{
         fullWidth
         color = 'primary'
         variant="contained"
+        disabled = {this.state.user.username === "" ||this.state.user.username === undefined
+      || this.state.user.address === ""|| this.state.user.address === undefined}
         onClick = {()=>this.updateHandler()}>Submit</Button>
 
         </div>

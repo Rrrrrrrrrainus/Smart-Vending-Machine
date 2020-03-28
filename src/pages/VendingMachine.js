@@ -1,7 +1,6 @@
 import React from 'react';
 import  MainLayout from '../components/Layout/MainLayout'
 import {Line,Pie } from 'react-chartjs-2';
-import {pie_sale} from 'data/chartdata';
 import userImage from 'assets/img/products/2.jpeg';
 import { NumberWidget } from 'components/Widget';
 import MaterialTable from 'material-table';
@@ -143,15 +142,18 @@ class VendingMachine extends React.Component {
           pie_sale:{
             datasets: [
               {
-                data: [0,0],
+                data: [0,0,0,0,0],
                 backgroundColor: [
+                  getColor('primary'),
                   getColor('secondary'),
                   getColor('success'),
+                  getColor('info'),
+                  getColor('danger'),
                 ],
                 label: 'Product Sales',
               },
             ],
-            labels: ['Coke','Sprite']
+            labels: ['0','1','2','3','4']
           },
 
         colors:[getColor('primary'),
@@ -264,21 +266,26 @@ pieHandler = (e) =>{
           this.setState(prevState => {
             var pie = {...prevState.pie_sale};
             var keys = Object.keys(response.data)
-            for(var i = 0; i < keys.length; i++) { 
+            var length = keys.length
+            for(var i = 0; i < 5; i++) { 
+              if(i>(length-1)){
+                pie.labels[i] = ""
+                pie.datasets[0].data[i] = 0
+              }
+              else{
                 var key = (keys[i]) ; 
-             //   if(i ===0){
                   pie.labels[i] = (key)
-                // }
-                // else{
-                //   pie.labels.push(key)
-                // }
                 pie.datasets[0].data[i] = (response.data[key])
-                pie.datasets[0].backgroundColor.push(this.state.colors[i])
+              }
 
             }
             console.log(pie)
             return { ...prevState, pie };
 
+           },()=>{
+             
+             document.getElementById('pie').data = this.state.pie_sale
+             console.log(document.getElementById('pie'))
            })
       }).catch(error => {console.log(error)})
 }
@@ -305,6 +312,34 @@ infoHandler = (e) =>{
              monthly_profit: response.data.profit,
              pre_monethly_profit:100*response.data.profit/response.data.previous_profit
          })
+         if(response.data.previous_total_sale === 0 || response.data.previous_total_sale === null){
+          this.setState(prevState => {
+            var pre_monthly_sale = prevState.pre_monthly_sale;
+            pre_monthly_sale = 100
+            return { ...prevState, pre_monthly_sale };
+          })
+         }
+         if(response.data.total_sale === null){
+          this.setState(prevState => {
+            var monthly_sale = prevState.monthly_sale;
+            monthly_sale = 0
+            return { ...prevState, monthly_sale };
+          })
+         }
+         if(response.data.previous_purchase_count === 0 || response.data.previous_purchase_count === null){
+          this.setState(prevState => {
+            var pre_monthly_purchase = prevState.pre_monthly_purchase;
+            pre_monthly_purchase = 100
+            return { ...prevState, pre_monthly_purchase };
+          })
+         }
+         if(response.data.previous_profit === 0 || response.data.previous_profit === null){
+          this.setState(prevState => {
+            var pre_monethly_profit = prevState.pre_monethly_profit;
+            pre_monethly_profit = 100
+            return { ...prevState, pre_monethly_profit };
+          })
+         }
       }).catch(error => {console.log(error)})
 }
 
@@ -596,7 +631,7 @@ deleteHandler = (newData,e) =>{
             <CardHeader>Product Sales{' '}
                     <small className="text-muted text-capitalize">Recent 7 Days</small></CardHeader>
             <CardBody>
-              <Pie className = 'pie' data = {this.state.pie_sale}/>
+              <Pie id = 'pie' data = {this.state.pie_sale} />
             </CardBody>
           </Card>
             </Col>
