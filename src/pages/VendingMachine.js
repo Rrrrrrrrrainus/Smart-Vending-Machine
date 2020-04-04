@@ -121,6 +121,12 @@ class VendingMachine extends React.Component {
       price:undefined,
       url:undefined
     },
+    similar:{
+      email: undefined,
+      vm_id:undefined,
+      item:undefined,
+      days:7
+    },
     count:undefined,
       monthly_sale:undefined,
       pre_monthly_sale:undefined,
@@ -142,18 +148,13 @@ class VendingMachine extends React.Component {
           pie_sale:{
             datasets: [
               {
-                data: [0,0,0,0,0],
+                data: [],
                 backgroundColor: [
-                  getColor('primary'),
-                  getColor('secondary'),
-                  getColor('success'),
-                  getColor('info'),
-                  getColor('danger'),
                 ],
                 label: 'Product Sales',
               },
             ],
-            labels: ['0','1','2','3','4']
+            labels: []
           },
 
         colors:[getColor('primary'),
@@ -176,7 +177,9 @@ class VendingMachine extends React.Component {
         getColor('gray-dark'),
         getColor('light'),
         getColor('dark')
-      ]}
+      ],
+      similar_product:undefined
+    }
   }
 
   toggle(){
@@ -195,9 +198,18 @@ class VendingMachine extends React.Component {
     const url = {
       purchase_url:data.purchase_url
     }
-    this.toggle()
-    this.priceHandler(url)
 
+    this.setState(prevState => {
+      var similar = {...prevState.similar};
+      similar.email = this.state.products.email
+      similar.vm_id = this.state.products.vm_id
+      similar.item =data.name
+      return { ...prevState, similar }},()=>{
+        this.similarHandler()
+        this.toggle()
+        this.priceHandler(url)}
+      )
+    
   }
 
 
@@ -228,30 +240,61 @@ class VendingMachine extends React.Component {
         }).catch(error => {console.log(error)})
 }
 
+similarHandler = (e) =>{
+  axios.post("https://vending-insights-smu.firebaseapp.com/analysis/similar",this.state.similar)
+   .then(response => {
+     if(response.data.choice !== -1){
+       this.setState(prevState => {
+        var similar_product = prevState.similar_product;
+        similar_product = response.data.products[response.data.choice]
+        
+        return { ...prevState, similar_product };
+      },()=>{
+      document.getElementById('similar').hidden = false
+    }
+      );
+     }
+     else{
+      this.setState(prevState => {
+       var similar_product = prevState.similar_product;
+       similar_product = "Sorry, we cannot find any similar produt."
+       
+       return { ...prevState, similar_product };
+     },()=>{
+     document.getElementById('similar').hidden = false
+   }
+     );
+    }
+     
+      }
+      
+      ).catch(error => {console.log(error)})
+}
+
 saleHandler = (e) =>{
   const data = {
     email:this.state.products.email,
     vm_id: this.state.vm_data.vm_id,
     days: 7
   }
+  
   axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getsevendaysvmsales",data)
    .then(response => {
-     var dates = response.data.date
             
           this.setState(prevState => {
             var revenue = {...prevState.weekly_revenue};
-            var keys = Object.keys(dates)
-            for(var i = 0; i < keys.length; i++) { 
-                var key = (keys[i]) ; 
-                var d = dates[key]
-                var newdate = d.month + '/' +d.day
+            let today = new Date()
+            for(var i = 0; i < 7; i++) { 
+                var month = today.getMonth()+1
+                var date = today.getDate() -i
+                var newdate = month + '/' +date
                 revenue.labels[i] = newdate
             }
-            revenue.datasets[0].data = response.data.sale
+            revenue.datasets[0].data = response.data
             return { ...prevState, revenue };
 
            })
-      }).catch(error => {console.log(error)})
+     }).catch(error => {console.log(error)})
 }
 
 pieHandler = (e) =>{
@@ -262,30 +305,19 @@ pieHandler = (e) =>{
   }
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/pie",data)
    .then(response => {
-          console.log(response)  
           this.setState(prevState => {
             var pie = {...prevState.pie_sale};
             var keys = Object.keys(response.data)
-            var length = keys.length
-            for(var i = 0; i < 5; i++) { 
-              if(i>(length-1)){
-                pie.labels[i] = ""
-                pie.datasets[0].data[i] = 0
-              }
-              else{
-                var key = (keys[i]) ; 
-                  pie.labels[i] = (key)
-                pie.datasets[0].data[i] = (response.data[key])
-              }
+            for(var i = 0; i < keys.length; i++) { 
+              var key = keys[i]
+              pie.labels.push(key)
+              pie.datasets[0].data.push(response.data[key])
+              pie.datasets[0].backgroundColor.push(this.state.colors[i])
 
             }
             console.log(pie)
             return { ...prevState, pie };
 
-           },()=>{
-             
-             document.getElementById('pie').data = this.state.pie_sale
-             console.log(document.getElementById('pie'))
            })
       }).catch(error => {console.log(error)})
 }
@@ -303,6 +335,7 @@ infoHandler = (e) =>{
   }
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo2",info)
    .then(response => {
+        console.log(response)
          this.setState({
            count:response.data.count,
            monthly_sale:response.data.total_sale,
@@ -344,6 +377,7 @@ infoHandler = (e) =>{
 }
 
   priceHandler = (url,e) =>{
+    console.log(url)
     axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url)
     .then(response => {
       
@@ -631,7 +665,7 @@ deleteHandler = (newData,e) =>{
             <CardHeader>Product Sales{' '}
                     <small className="text-muted text-capitalize">Recent 7 Days</small></CardHeader>
             <CardBody>
-              <Pie id = 'pie' data = {this.state.pie_sale} />
+              <Pie id = 'pie' data = {this.state.pie_sale} redraw/>
             </CardBody>
           </Card>
             </Col>
@@ -646,14 +680,16 @@ deleteHandler = (newData,e) =>{
     <ModalBody>
       <div id = 'search' hidden = {false}
       style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-      Searching  
+      Searching&nbsp;
       <Spinner color="primary" />
       </div>
       <div id = 'info' hidden = {true}>
     Product Name: {this.state.price.product}<br/>
     Product Price: {this.state.price.price}<br/>
-    Product URL:{this.state.price.url}
-    </div>
+    Product URL:{this.state.price.url}</div><br/>
+    <div id = 'similar' hidden = {true}>
+    Similar Product: {this.state.similar_product}</div>
+    
     </ModalBody>
     <ModalFooter>
       <Button color="secondary" onClick={() => this.toggle()}>

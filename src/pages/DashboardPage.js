@@ -96,7 +96,6 @@ class DashboardPage extends React.Component {
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo",info)
      .then(response => {
-       console.log(response)
            this.setState({
              
              count:response.data.count,
