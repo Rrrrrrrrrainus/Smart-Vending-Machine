@@ -280,17 +280,14 @@ saleHandler = (e) =>{
   
   axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getsevendaysvmsales",data)
    .then(response => {
-            
           this.setState(prevState => {
             var revenue = {...prevState.weekly_revenue};
-            let today = new Date()
-            for(var i = 0; i < 7; i++) { 
-                var month = today.getMonth()+1
-                var date = today.getDate() -i
-                var newdate = month + '/' +date
-                revenue.labels[i] = newdate
+            for(var i = 6; i >-1; i--) { 
+                var date = response.data.days[i].month +'/'+ response.data.days[i].day
+                revenue.labels[i] = date
             }
-            revenue.datasets[0].data = response.data
+            revenue.labels = revenue.labels.reverse()
+            revenue.datasets[0].data = response.data.sale.reverse()
             return { ...prevState, revenue };
 
            })
@@ -315,7 +312,6 @@ pieHandler = (e) =>{
               pie.datasets[0].backgroundColor.push(this.state.colors[i])
 
             }
-            console.log(pie)
             return { ...prevState, pie };
 
            })
@@ -335,15 +331,14 @@ infoHandler = (e) =>{
   }
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo2",info)
    .then(response => {
-        console.log(response)
          this.setState({
            count:response.data.count,
            monthly_sale:response.data.total_sale,
-             pre_monthly_sale: 100*response.data.total_sale/response.data.previous_total_sale,
+             pre_monthly_sale: parseFloat((100*response.data.total_sale/response.data.previous_total_sale).toFixed(2)),
              monthly_purchase: response.data.purchase_count,
-             pre_monthly_purchase: 100*response.data.purchase_count/response.data.previous_purchase_count,
+             pre_monthly_purchase: parseFloat((100*response.data.purchase_count/response.data.previous_purchase_count).toFixed(2)),
              monthly_profit: response.data.profit,
-             pre_monethly_profit:100*response.data.profit/response.data.previous_profit
+             pre_monethly_profit:parseFloat((100*response.data.profit/response.data.previous_profit).toFixed(2))
          })
          if(response.data.previous_total_sale === 0 || response.data.previous_total_sale === null){
           this.setState(prevState => {
@@ -377,7 +372,6 @@ infoHandler = (e) =>{
 }
 
   priceHandler = (url,e) =>{
-    console.log(url)
     axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url)
     .then(response => {
       
@@ -395,7 +389,6 @@ infoHandler = (e) =>{
         }).catch(error => {console.log(error)})
   }
 submitHandler = (newData,e) =>{
-  console.log(this.state.add_product)
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/addproduct",this.state.add_product)
    .then(response => {
       this.setState(prevState => {
@@ -410,14 +403,12 @@ submitHandler = (newData,e) =>{
 updateHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.state.update_product)
    .then(response => {
-      console.log(response)
       }).catch(error => {console.log(error.response)})
 }
 deleteHandler = (newData,e) =>{
   axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deleteproduct",
   {data:this.state.delete_product})
    .then(response => {
-      console.log(response)
       }).catch(error => {console.log(error.response)})
 }
 

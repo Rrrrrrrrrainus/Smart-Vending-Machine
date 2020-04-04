@@ -101,11 +101,11 @@ class DashboardPage extends React.Component {
              count:response.data.count,
              non_count:100,
              monthly_sale:response.data.total_sale,
-             pre_monthly_sale: 100*response.data.total_sale/response.data.previous_total_sale,
+             pre_monthly_sale: parseFloat((100*response.data.total_sale/response.data.previous_total_sale).toFixed(2)),
              monthly_purchase: response.data.purchase_count,
-             pre_monthly_purchase: 100*response.data.purchase_count/response.data.previous_purchase_count,
+             pre_monthly_purchase: parseFloat((100*response.data.purchase_count/response.data.previous_purchase_count).toFixed(2)),
              monthly_profit: response.data.profit,
-             pre_monethly_profit:100*response.data.profit/response.data.previous_profit
+             pre_monethly_profit:parseFloat((100*response.data.profit/response.data.previous_profit).toFixed(2))
            })
            if(response.data.count === 0 || response.data.count === null){
             this.setState(prevState => {
