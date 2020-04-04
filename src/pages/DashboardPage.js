@@ -60,7 +60,7 @@ class DashboardPage extends React.Component {
           backgroundColor: getColor('primary'),
         borderColor: getColor('primary'),
         borderWidth: 1,
-          data: [1,0,0,3,0,0,0,7,0,8,0,0],
+          data: [0,0,0,0,0,0,0,0,0,0,0,0],
           
         }]
     },
@@ -72,7 +72,7 @@ class DashboardPage extends React.Component {
           label: 'Net Profits',
           borderColor: getColor('red'),
           backgroundColor: getColor('red'),
-          data: [0,2,0,0,0,0,0,1,0,0,0,0],
+          data: [0,0,0,0,0,0,0,0,0,0,0,0],
           borderWidth: 1,
           fill:true
         }],},
@@ -83,7 +83,7 @@ class DashboardPage extends React.Component {
           label: 'Net Sales',
           borderColor: '#6a82fb',
           backgroundColor: getColor('purple'),
-          data: [1,2,3,4,5,6,7],
+          data: [0,0,0,0,0,0,0],
           borderWidth: 1,
           fill:false
         }],},
@@ -109,6 +109,7 @@ class DashboardPage extends React.Component {
             this.getHandler()
             this.saleHandler()
             this.barHandler()
+            this.profitHandler()
         })
         
       }
@@ -122,7 +123,7 @@ class DashboardPage extends React.Component {
     const data = {
       email:this.state.email
     }
-    
+    console.log(data)
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanysale",data)
      .then(response => {
        console.log(response.data)
@@ -145,7 +146,7 @@ class DashboardPage extends React.Component {
       email:this.state.email,
       year: 2020
     }
-    
+    console.log(data)
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanymonthsale",data)
      .then(response => {
        console.log(response.data)
@@ -153,6 +154,24 @@ class DashboardPage extends React.Component {
               var bar = {...prevState.bar_data};
               bar.datasets[0].data = response.data.sale
               return { ...prevState, bar };
+  
+             })
+       }).catch(error => {console.log(error)})
+  }
+
+  profitHandler = (e) =>{
+    const data = {
+      email:this.state.email,
+      year: '2020'
+    }
+    console.log(data)
+    axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getyearprofitbyuser",data)
+     .then(response => {
+       console.log(response.data)
+            this.setState(prevState => {
+              var profit = {...prevState.profit_data};
+              profit.datasets[0].data = response.data
+              return { ...prevState, profit };
   
              })
        }).catch(error => {console.log(error)})
@@ -313,7 +332,7 @@ class DashboardPage extends React.Component {
           <Card>
             <CardHeader>Annual Profits</CardHeader>
             <CardBody>
-              <Line data = {this.state.profit_data}/>
+              <Bar data = {this.state.profit_data}/>
             </CardBody>
           </Card>
         </Col>

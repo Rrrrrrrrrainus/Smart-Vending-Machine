@@ -13,6 +13,7 @@ import Clear from '@material-ui/icons/Clear';
 import DeleteOutline from '@material-ui/icons/DeleteOutline';
 import Edit from '@material-ui/icons/Edit';
 import FilterList from '@material-ui/icons/FilterList';
+import "../styles/_modalText.scss"
 import FirstPage from '@material-ui/icons/FirstPage';
 import LastPage from '@material-ui/icons/LastPage';
 import Remove from '@material-ui/icons/Remove';
@@ -303,6 +304,7 @@ pieHandler = (e) =>{
   }
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/pie",data)
    .then(response => {
+     console.log(response)
           this.setState(prevState => {
             var pie = {...prevState.pie_sale};
             var keys = Object.keys(response.data)
@@ -599,7 +601,6 @@ deleteHandler = (newData,e) =>{
             pageSize: 10,
             pageSizeOptions: [5, 10, 20, 30 ,50, 75, 100 ],
             rowStyle: rowData => {
-              console.log(rowData)
               if(rowData.inventory<=0) {
                 return {backgroundColor: '#ffb3b3'};
               }
@@ -674,29 +675,50 @@ deleteHandler = (newData,e) =>{
           </Row>
         </Page>
         <Modal
-    isOpen={this.state.modal}
-    >
-    <ModalHeader>{this.state.vm_data.name}</ModalHeader>
-    <ModalBody>
-      <div id = 'search' hidden = {false}
-      style={{display: 'flex',  justifyContent:'center', alignItems:'center'}}>
-      Searching&nbsp;
+          isOpen={this.state.modal}
+        >
+          <ModalHeader>
+            <div className="MotalTitle">
+              {this.state.vm_data.name}
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            <div id='search' hidden={false}
+              style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+              className='modal-body'>
+              Searching&nbsp;
       <Spinner color="primary" />
-      </div>
-      <div id = 'info' hidden = {true}>
-    Product Name: {this.state.price.product}<br/>
-    Product Price: {this.state.price.price}<br/>
-    Product URL:{this.state.price.url}</div><br/>
-    <div id = 'similar' hidden = {true}>
-    Similar Product: {this.state.similar_product}</div>
-    
-    </ModalBody>
-    <ModalFooter>
-      <Button color="secondary" onClick={() => this.toggle()}>
-        Close
+            </div>
+            <div id='info' hidden={true}>
+              <div className="attribute">Product Name:</div>   <br />
+              <div className="productDescription ">{this.state.price.product}</div>
+              <br />
+              <br />
+
+              <div className="attribute">Product Price: &nbsp;</div>
+              <div className="productContent ">{this.state.price.price}</div>
+              <br />
+              <br />
+              <div className="attribute">Product URL: &nbsp;</div>
+
+              < a className="productContent " href={this.state.price.url} target="_blank">Click Here.</a ><br />
+
+              <br />
+            </div>
+            <div id='similar' hidden={true}>
+              <div className="attribute">Similar Product: &nbsp;</div>
+              <div className="productContent ">{this.state.similar_product}</div>
+
+              <br />
+            </div>
+
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={() => this.toggle()}>
+              Close
       </Button>
-    </ModalFooter>
-  </Modal>
+          </ModalFooter>
+        </Modal>
       </MainLayout>
     );
   }
