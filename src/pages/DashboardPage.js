@@ -7,6 +7,7 @@ import UserProgressTable from 'components/UserProgressTable';
 import { IconWidget, NumberWidget } from 'components/Widget';
 import MapContainer from 'components/Maps/maps'
 import {revenue} from 'data/chartdata';
+import { getColor } from 'utils/colors';
 import {
   productsData,
   supportTicketsData,
@@ -16,7 +17,7 @@ import {
 import axios from 'axios'
 import React from 'react';
 import  MainLayout from '../components/Layout/MainLayout'
-import { Line } from 'react-chartjs-2';
+import { Line,Bar } from 'react-chartjs-2';
 import {
   MdPersonPin,
   MdRateReview,
@@ -34,11 +35,6 @@ import {
 } from 'reactstrap';
 import {decode,checkExpired} from '../components/authendication'
 
-// const lastWeek = new Date(
-//   today.getFullYear(),
-//   today.getMonth(),
-//   today.getDate() - 7,
-// );
 
 class DashboardPage extends React.Component {
   constructor(props){
@@ -55,10 +51,44 @@ class DashboardPage extends React.Component {
       monthly_purchase:undefined,
       pre_monthly_purchase:undefined,
       monthly_profit:undefined,
-      pre_monethly_profit:undefined
-
-    }
+      pre_monethly_profit:undefined,
+      bar_data:{labels: ['January','February','March','April','May','June','July','August','September',
+    'October','November','December'],
+      datasets: [
+        {
+          label: 'Annual Net Sales',
+          backgroundColor: getColor('primary'),
+        borderColor: getColor('primary'),
+        borderWidth: 1,
+          data: [1,0,0,3,0,0,0,7,0,8,0,0],
+          
+        }]
+    },
+    profit_data: {
+      labels: ['January','February','March','April','May','June','July','August','September',
+    'October','November','December'],
+      datasets: [
+        {
+          label: 'Net Profits',
+          borderColor: getColor('red'),
+          backgroundColor: getColor('red'),
+          data: [0,2,0,0,0,0,0,1,0,0,0,0],
+          borderWidth: 1,
+          fill:true
+        }],},
+    weekly_revenue: {
+      labels: [0,0,0,0,0,0,0],
+      datasets: [
+        {
+          label: 'Net Sales',
+          borderColor: '#6a82fb',
+          backgroundColor: getColor('purple'),
+          data: [1,2,3,4,5,6,7],
+          borderWidth: 1,
+          fill:false
+        }],},
   }
+}
   componentDidMount() {
     // this is needed, because InfiniteCalendar forces window scroll
     window.scrollTo(0, 0);
@@ -77,6 +107,8 @@ class DashboardPage extends React.Component {
           email:code.email,
         },()=>{
             this.getHandler()
+            this.saleHandler()
+            this.barHandler()
         })
         
       }
@@ -84,6 +116,46 @@ class DashboardPage extends React.Component {
     else{
       window.location.href='/';
     }
+  }
+
+  saleHandler = (e) =>{
+    const data = {
+      email:this.state.email
+    }
+    
+    axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanysale",data)
+     .then(response => {
+       console.log(response.data)
+            this.setState(prevState => {
+              var revenue = {...prevState.weekly_revenue};
+              for(var i = 6; i >-1; i--) { 
+                  var date = response.data.days[i].month +'/'+ response.data.days[i].day
+                  revenue.labels[i] = date
+              }
+              revenue.labels = revenue.labels.reverse()
+              revenue.datasets[0].data = response.data.sale.reverse()
+              return { ...prevState, revenue };
+  
+             })
+       }).catch(error => {console.log(error)})
+  }
+
+  barHandler = (e) =>{
+    const data = {
+      email:this.state.email,
+      year: 2020
+    }
+    
+    axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanymonthsale",data)
+     .then(response => {
+       console.log(response.data)
+            this.setState(prevState => {
+              var bar = {...prevState.bar_data};
+              bar.datasets[0].data = response.data.sale
+              return { ...prevState, bar };
+  
+             })
+       }).catch(error => {console.log(error)})
   }
 
   getHandler = (e) =>{
@@ -217,7 +289,7 @@ class DashboardPage extends React.Component {
                 <small className="text-muted text-capitalize">Recent 7 Days</small>
               </CardHeader>
               <CardBody>
-                <Line data={revenue.weekly_revenue}/>
+                <Line data={this.state.weekly_revenue}/>
               </CardBody>
             </Card>
           </Col>
@@ -228,162 +300,25 @@ class DashboardPage extends React.Component {
 
           
         </Row>
-
-        <CardGroup style={{ marginBottom: '1rem' }}>
-          <IconWidget
-            bgColor="white"
-            inverse={false}
-            icon={MdThumbUp}
-            title="50+ Likes"
-            subtitle="People you like"
-          />
-          <IconWidget
-            bgColor="white"
-            inverse={false}
-            icon={MdRateReview}
-            title="10+ Reviews"
-            subtitle="New Reviews"
-          />
-          <IconWidget
-            bgColor="white"
-            inverse={false}
-            icon={MdShare}
-            title="30+ Shares"
-            subtitle="New Shares"
-          />
-        </CardGroup>
-
         <Row>
-          <Col md="6" sm="12" xs="12">
-            <Card>
-              <CardHeader>New Products</CardHeader>
-              <CardBody>
-                {productsData.map(
-                  ({ id, image, title, description, right }) => (
-                    <ProductMedia
-                      key={id}
-                      image={image}
-                      title={title}
-                      description={description}
-                      right={right}
-                    />
-                  ),
-                )}
-              </CardBody>
-            </Card>
-          </Col>
-
-          <Col md="6" sm="12" xs="12">
-            <Card>
-              <CardHeader>New Users</CardHeader>
-              <CardBody>
-                <UserProgressTable
-                  headers={[
-                    <MdPersonPin size={25} />,
-                    'name',
-                    'date',
-                    'participation',
-                    '%',
-                  ]}
-                  usersData={userProgressTableData}
-                />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row>
-          {/* <Col lg="4" md="12" sm="12" xs="12">
-            <InfiniteCalendar
-              selected={today}
-              minDate={lastWeek}
-              width="100%"
-              theme={{
-                accentColor: primaryColor,
-                floatingNav: {
-                  background: secondaryColor,
-                  chevron: primaryColor,
-                  color: '#FFF',
-                },
-                headerColor: primaryColor,
-                selectionColor: secondaryColor,
-                textColor: {
-                  active: '#FFF',
-                  default: '#333',
-                },
-                todayColor: secondaryColor,
-                weekdayColor: primaryColor,
-              }}
-            />
-          </Col> */}
-
-          <Col lg="8" md="12" sm="12" xs="12">
-            <Card inverse className="bg-gradient-primary">
-              <CardHeader className="bg-gradient-primary">
-                Map with bubbles
-              </CardHeader>
-              <CardBody>
-                <MapWithBubbles />
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-
-        {/* <CardDeck style={{ marginBottom: '1rem' }}>
-          <Card body style={{ overflowX: 'auto','paddingBottom':'15px','height': 'fit-content','paddingTop': 'inherit'}}>
-            <HorizontalAvatarList
-              avatars={avatarsData}
-              avatarProps={{ size: 50 }}
-            />
+        <Col xl={6} lg={12} md={12}>
+          <Card>
+            <CardHeader>Annual Net Sales</CardHeader>
+            <CardBody>
+              <Bar data = {this.state.bar_data}/>
+            </CardBody>
           </Card>
-
-          <Card body style={{ overflowX: 'auto','paddingBottom':'15px','height': 'fit-content','paddingTop': 'inherit'}}>
-            <HorizontalAvatarList
-              avatars={avatarsData}
-              avatarProps={{ size: 50 }}
-              reversed
-            />
+        </Col>
+        <Col xl={6} lg={12} md={12}>
+          <Card>
+            <CardHeader>Annual Profits</CardHeader>
+            <CardBody>
+              <Line data = {this.state.profit_data}/>
+            </CardBody>
           </Card>
-        </CardDeck> */}
-
-        <Row>
-          <Col lg="4" md="12" sm="12" xs="12">
-            <AnnouncementCard
-              color="gradient-secondary"
-              header="Announcement"
-              avatarSize={60}
-              name="Jamy"
-              date="1 hour ago"
-              text="Lorem ipsum dolor sit amet,consectetuer edipiscing elit,sed diam nonummy euismod tinciduntut laoreet doloremagna"
-              buttonProps={{
-                children: 'show',
-              }}
-              style={{ height: 500 }}
-            />
-          </Col>
-
-          <Col lg="4" md="12" sm="12" xs="12">
-            <Card>
-              <CardHeader>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>Support Tickets</span>
-                  <Button>
-                    <small>View All</small>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardBody>
-                {supportTicketsData.map(supportTicket => (
-                  <SupportTicket key={supportTicket.id} {...supportTicket} />
-                ))}
-              </CardBody>
-            </Card>
-          </Col>
-
-          <Col lg="4" md="12" sm="12" xs="12">
-            <TodosCard todos={todosData} />
-          </Col>
+        </Col>
         </Row>
+
       </Page>
       </MainLayout>
     );

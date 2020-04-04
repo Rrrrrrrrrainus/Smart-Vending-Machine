@@ -29,6 +29,7 @@ import {
   Card,
   CardHeader,
   CardImg,
+  CardTitle,
   CardBody,
   CardText,
   Table,
@@ -403,12 +404,14 @@ submitHandler = (newData,e) =>{
 updateHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.state.update_product)
    .then(response => {
+     console.log(response)
       }).catch(error => {console.log(error.response)})
 }
 deleteHandler = (newData,e) =>{
   axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deleteproduct",
   {data:this.state.delete_product})
    .then(response => {
+     console.log(response)
       }).catch(error => {console.log(error.response)})
 }
 
@@ -595,8 +598,17 @@ deleteHandler = (newData,e) =>{
             actionsColumnIndex: -1,
             pageSize: 10,
             pageSizeOptions: [5, 10, 20, 30 ,50, 75, 100 ],
+            rowStyle: rowData => {
+              console.log(rowData)
+              if(rowData.inventory<=0) {
+                return {backgroundColor: '#ffb3b3'};
+              }
+              
+              return {};
+            }
           }}
           onRowClick={(event,rowData) => this.clickPrice(rowData)}
+          
           />
           </Col>
           
@@ -605,8 +617,7 @@ deleteHandler = (newData,e) =>{
         <Card>
             <CardImg top src={userImage} height = '400'/>
             <CardBody>
-            <Button className = "text-center" tag="h4" color="light" size="lg" block id="toggler">{this.state.vm_data.name}</Button>
-            <UncontrolledCollapse toggler="#toggler">
+            <CardTitle className = "text-center" tag="h4" color="light" size="lg" block id="toggler">{this.state.vm_data.name}</CardTitle>
               <Table borderless>
                 <thead>
                   <tr>
@@ -632,7 +643,6 @@ deleteHandler = (newData,e) =>{
               <CardText>
                 <small className="text-muted">Owned by SW Vault</small>
               </CardText>
-              </UncontrolledCollapse>
             </CardBody>
           </Card>
           </Col>
@@ -665,7 +675,6 @@ deleteHandler = (newData,e) =>{
         </Page>
         <Modal
     isOpen={this.state.modal}
-    // toggle ={ this.toggle("fkk")}
     >
     <ModalHeader>{this.state.vm_data.name}</ModalHeader>
     <ModalBody>
