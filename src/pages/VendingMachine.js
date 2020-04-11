@@ -305,6 +305,7 @@ pieHandler = (e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/pie",data)
    .then(response => {
      console.log(response)
+     
           this.setState(prevState => {
             var pie = {...prevState.pie_sale};
             var keys = Object.keys(response.data)
