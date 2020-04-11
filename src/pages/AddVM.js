@@ -98,6 +98,21 @@ export default function AddVM(props){
             }).catch(error => {console.log(error.response)})
     }
 
+    const loginHandler = (e) =>{
+      const data = {
+        id:localStorage.id,
+        email:localStorage.email
+      }
+      axios.post("https://vending-insights-smu.firebaseapp.com/checktoken",data)
+       .then(response => {
+         if(response.data === 'NO'){
+           delete localStorage.id
+           delete localStorage.jtwToken
+          window.location.href='/?login=false';
+         }
+         }).catch(error => {console.log(error)})
+    }
+
     const updateHandler = (newData,e) =>{
       var code = decode()
         updatevm.email = code.email
@@ -158,6 +173,7 @@ export default function AddVM(props){
           window.location.href='/';
         }
         if (auth.email !== undefined) {
+        loginHandler()
          getHandler()
          resolve("Promise resolved successfully");
         }

@@ -78,6 +78,8 @@ class VendingMachine extends React.Component {
     ],
     data: [
     ],
+    data2:[],
+    filted:false,
     modal:false,
     vm_data: {
       name:"",
@@ -182,8 +184,46 @@ class VendingMachine extends React.Component {
       ],
       similar_product:undefined
     }
+    this._source = axios.CancelToken.source();
   }
 
+
+  closemodule(){
+    document.getElementById('search').hidden = false
+    document.getElementById('info').hidden = true
+    document.getElementById('similar').hidden = true
+    this.toggle()
+  }
+
+  filter(){
+    if(this.state.filted){
+      this.setState(prevState => {
+        var data2 = [...prevState.data2];
+        var data = [...prevState.data]
+        var filted = prevState.filted
+        data = data2
+        data2 = []
+        filted = false
+        return { ...prevState, data2,data,filted}}
+        )
+    }
+    else{
+    this.setState(prevState => {
+      var data2 = [...prevState.data2];
+      var data = [...prevState.data]
+      var filted = prevState.filted
+      var list = []
+      for (var i = 0; i<data.length;i++){
+        if(data[i].inventory === 0 || data[i].inventory === '0'){
+          list.push(data[i])
+        }
+      }
+      data2 = data
+      data = list
+      filted = true
+      return { ...prevState, data2,filted,data}}
+      )}
+  }
   toggle(){
     var empty={
       product:undefined,
@@ -193,6 +233,11 @@ class VendingMachine extends React.Component {
     this.setState({
       modal: !this.state.modal,
       price:empty
+  },()=>{
+    if(this.state.modal === false){
+      this._source.cancel('Operation canceled due to new request.')
+      this._source = axios.CancelToken.source();
+    }
   })
   };
 
@@ -221,6 +266,21 @@ class VendingMachine extends React.Component {
        vars[key] = value; 
     })
     return vars; 
+  }
+
+  loginHandler = (e) =>{
+    const data = {
+      id:localStorage.id,
+      email:localStorage.email
+    }
+    axios.post("https://vending-insights-smu.firebaseapp.com/checktoken",data)
+     .then(response => {
+       if(response.data === 'NO'){
+         delete localStorage.id
+         delete localStorage.jtwToken
+        window.location.href='/?login=false';
+       }
+       }).catch(error => {console.log(error)})
   }
 
   getHandler = (e) =>{
@@ -305,7 +365,7 @@ pieHandler = (e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/pie",data)
    .then(response => {
      console.log(response)
-     
+
           this.setState(prevState => {
             var pie = {...prevState.pie_sale};
             var keys = Object.keys(response.data)
@@ -376,10 +436,15 @@ infoHandler = (e) =>{
 }
 
   priceHandler = (url,e) =>{
-    axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url)
+    axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url,
+    { cancelToken: this._source.token })
     .then(response => {
-      
-            this.setState(prevState => {
+      if(response.data.msg !== undefined){
+        document.getElementById('search').hidden = true
+        document.getElementById('error').hidden = false
+      }
+      else{
+        this.setState(prevState => {
               var price = {...prevState.price};
               price.product= response.data.title
               price.price = response.data.price
@@ -387,9 +452,14 @@ infoHandler = (e) =>{
               return { ...prevState, price };
 
              },()=>{
-               document.getElementById('search').hidden = true
-               document.getElementById('info').hidden = false
+               var s = document.getElementById('search')
+               if(s){
+                document.getElementById('search').hidden = true
+                document.getElementById('info').hidden = false
+               }
              })
+      }
+            
         }).catch(error => {console.log(error)})
   }
 submitHandler = (newData,e) =>{
@@ -397,9 +467,18 @@ submitHandler = (newData,e) =>{
    .then(response => {
       this.setState(prevState => {
           const data = [...prevState.data];
+          const data2 = [...prevState.data2]
           newData.sales = 0;
+          if(this.state.filted === true){
+            if(newData.inventory === 0 || newData.inventory === '0'){
+              data.push(newData);
+            }
+            data2.push(newData)
+          }
+          else{
           data.push(newData);
-          return { ...prevState, data };
+          }
+          return { ...prevState, data,data2 };
         });
       }).catch(error => {console.log(error)})
 }
@@ -407,14 +486,32 @@ submitHandler = (newData,e) =>{
 updateHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.state.update_product)
    .then(response => {
-     console.log(response)
+    this.setState(prevState => {
+      var data = [...prevState.data];
+      const data2 = [...prevState.data2]
+      var list = []
+      if(this.state.filted === true){
+        for(var i =0;i<data.length;i++){
+        if(data[i].inventory === 0 || data[i].inventory === '0'){
+          list.push(data[i])
+        }
+      }
+        data = list
+        for(var j = 0;j<data2.length;j++){
+          if(data2[j].name === newData.name){
+            data2[j] = newData
+          }
+        
+      }
+      }
+      return { ...prevState, data,data2 };
+    });
       }).catch(error => {console.log(error.response)})
 }
 deleteHandler = (newData,e) =>{
   axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deleteproduct",
   {data:this.state.delete_product})
    .then(response => {
-     console.log(response)
       }).catch(error => {console.log(error.response)})
 }
 
@@ -461,6 +558,7 @@ deleteHandler = (newData,e) =>{
         update_product.vm_id = temp.vm_id
         return { ...prevState, vm_data,products,add_product,delete_product,update_product };
       },()=>{
+        this.loginHandler()
         this.getHandler()
         this.infoHandler()
         this.saleHandler()
@@ -577,7 +675,7 @@ deleteHandler = (newData,e) =>{
                     update_product.purchase_url = newData.purchase_url
                     
                     return { ...prevState, data,update_product };
-                  },()=>{this.updateHandler()});
+                  },()=>{this.updateHandler(newData)});
                 }
               }, 600);
             }),
@@ -597,6 +695,14 @@ deleteHandler = (newData,e) =>{
             }),
             
         }}
+        actions={[
+          {
+            icon: tableIcons.Filter,
+            tooltip: 'Filter',
+            isFreeAction: true,
+            onClick: (event) => this.filter()
+          }
+        ]}
         options={{
             actionsColumnIndex: -1,
             pageSize: 10,
@@ -706,6 +812,10 @@ deleteHandler = (newData,e) =>{
 
               <br />
             </div>
+            <div id = 'error' hidden = {true}>
+              Cannot find product price. Please use valid URL
+              <br />
+            </div>
             <div id='similar' hidden={true}>
               <div className="attribute">Similar Product: &nbsp;</div>
               <div className="productContent ">{this.state.similar_product}</div>
@@ -715,7 +825,8 @@ deleteHandler = (newData,e) =>{
 
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={() => this.toggle()}>
+            <Button color="secondary" onClick={() => this.closemodule()
+            }>
               Close
       </Button>
           </ModalFooter>

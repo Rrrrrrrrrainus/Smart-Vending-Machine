@@ -106,6 +106,7 @@ class DashboardPage extends React.Component {
           month:today.getMonth()+1,
           email:code.email,
         },()=>{
+          this.loginHandler()
             this.getHandler()
             this.saleHandler()
             this.barHandler()
@@ -123,7 +124,6 @@ class DashboardPage extends React.Component {
     const data = {
       email:this.state.email
     }
-    console.log(data)
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanysale",data)
      .then(response => {
        console.log(response.data)
@@ -146,7 +146,6 @@ class DashboardPage extends React.Component {
       email:this.state.email,
       year: 2020
     }
-    console.log(data)
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanymonthsale",data)
      .then(response => {
        console.log(response.data)
@@ -164,7 +163,6 @@ class DashboardPage extends React.Component {
       email:this.state.email,
       year: '2020'
     }
-    console.log(data)
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getyearprofitbyuser",data)
      .then(response => {
        console.log(response.data)
@@ -174,6 +172,21 @@ class DashboardPage extends React.Component {
               return { ...prevState, profit };
   
              })
+       }).catch(error => {console.log(error)})
+  }
+
+  loginHandler = (e) =>{
+    const data = {
+      id:localStorage.id,
+      email:localStorage.email
+    }
+    axios.post("https://vending-insights-smu.firebaseapp.com/checktoken",data)
+     .then(response => {
+       if(response.data === 'NO'){
+         delete localStorage.id
+         delete localStorage.jtwToken
+        window.location.href='/?login=false';
+       }
        }).catch(error => {console.log(error)})
   }
 

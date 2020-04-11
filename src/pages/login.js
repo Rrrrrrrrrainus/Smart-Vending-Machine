@@ -77,7 +77,8 @@ const [user,setUser]  = React.useState({
 
   const [state,setState]  = React.useState({
     data:false,
-    check:false
+    check:false,
+    login:false
   });
 
   const [error,setError]  = React.useState({
@@ -145,6 +146,7 @@ const [user,setUser]  = React.useState({
                 if(response.data !== 'no'){
                     localStorage.setItem('jtwToken',response.data.token)
                     localStorage.setItem('auth',response.data.auth)
+                    localStorage.setItem('id',response.data.id)
                     if(state.check){
                       localStorage.setItem('email',user.email)
                     }
@@ -200,6 +202,16 @@ const [user,setUser]  = React.useState({
           )
       }
       }
+      if(result['login']){
+        if(!state.login){
+          setState(prevState => {
+            var login = prevState.login;
+            login = true
+            return { ...prevState, login};
+          }
+          )
+      }
+      }
     }
   return (
     <Grid container component="main" className={classes.root}>
@@ -214,6 +226,7 @@ const [user,setUser]  = React.useState({
             Sign in
           </Typography>
           <div hidden = {!state.data}>{checkSession()}You session is lost. Try to login again.</div>
+          <div hidden = {!state.login}>{checkSession()}Your account is logged in on another device</div>
           <form className={classes.form} noValidate 
           >
             <TextField

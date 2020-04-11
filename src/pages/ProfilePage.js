@@ -55,6 +55,7 @@ getFiles(files){
           auth.email = code.email
           return { ...prevState,auth };                                
         },() => {
+          this.loginHandler()
           this.getHandler()
       });
 
@@ -87,6 +88,21 @@ getFiles(files){
          }
        })
         }).catch(error => {console.log(error)})
+}
+
+loginHandler = (e) =>{
+  const data = {
+    id:localStorage.id,
+    email:localStorage.email
+  }
+  axios.post("https://vending-insights-smu.firebaseapp.com/checktoken",data)
+   .then(response => {
+     if(response.data === 'NO'){
+       delete localStorage.id
+       delete localStorage.jtwToken
+      window.location.href='/?login=false';
+     }
+     }).catch(error => {console.log(error)})
 }
 
 updateHandler = (e) =>{

@@ -28,6 +28,21 @@ export class MapContainer extends Component {
         this.onMarkerClick = this.onMarkerClick.bind(this);
         this.onMapClick = this.onMapClick.bind(this);
       }
+
+      loginHandler = (e) =>{
+        const data = {
+          id:localStorage.id,
+          email:localStorage.email
+        }
+        axios.post("https://vending-insights-smu.firebaseapp.com/checktoken",data)
+         .then(response => {
+           if(response.data === 'NO'){
+             delete localStorage.id
+             delete localStorage.jtwToken
+            window.location.href='/?login=false';
+           }
+           }).catch(error => {console.log(error)})
+      }
       
       getHandler(){
         axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallvm",this.getvm)
@@ -73,6 +88,7 @@ export class MapContainer extends Component {
         if(localStorage.jtwToken){
           var code = decode()
           this.getvm.email = code.email
+          this.loginHandler()
           this.getHandler()
         }
         
