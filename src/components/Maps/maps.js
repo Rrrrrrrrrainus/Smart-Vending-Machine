@@ -9,6 +9,8 @@ const mapStyles = {
 };
 
 export class MapContainer extends Component {
+  _isMounted = false;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -62,27 +64,31 @@ export class MapContainer extends Component {
                         position = {{ lat: vm_info.latitude, lng: vm_info.longitude}}
                         name = { 'Changing Colors Garage' }
                         id = {key}
+                        key = {i}
                       />)
-                  this.setState(marker)
+                      if (this._isMounted) {
+                  this.setState(marker)}
                 }
             }).catch(error => {console.log(error)})
       }
 
       onMarkerClick = (props, marker, e) => {
+        if (this._isMounted) {
         this.setState({
           selectedPlace: props,
           activeMarker: marker,
           showingInfoWindow: true,
           selectMarker: this.vm[marker.id]
-        });
+        });}
       }
       onMapClick = (props) => {
+        if (this._isMounted) {
         if (this.state.showingInfoWindow) {
           this.setState({
             showingInfoWindow: false,
             activeMarker: null
           });
-        }
+        }}
       }
       componentWillMount(){
         if(localStorage.jtwToken){
@@ -93,7 +99,11 @@ export class MapContainer extends Component {
         }
         
       }
-    
+      componentDidMount() {
+        this._isMounted = true;}
+        componentWillUnmount() {
+          this._isMounted = false;
+        }
 
   render() {
 

@@ -102,7 +102,6 @@ const [user,setUser]  = React.useState({
     }
 
     const submitHandler = (e) =>{
-      console.log(user)
       if(user.email === ""){
         setError(prevState => {
           var email_error = prevState.email_error;
@@ -142,7 +141,6 @@ const [user,setUser]  = React.useState({
       if(user.email !== "" && user.password !== ""){
         axios.post("https://vending-insights-smu.firebaseapp.com/login",user)
         .then(response => {
-          console.log(response)
                 if(response.data !== 'no'){
                     localStorage.setItem('jtwToken',response.data.token)
                     localStorage.setItem('auth',response.data.auth)
@@ -173,7 +171,7 @@ const [user,setUser]  = React.useState({
   }
 
     useEffect(() => {
-      if(localStorage.email){
+      if(localStorage.email && !state.check){
         document.getElementById('email').value = localStorage.email
         setUser({...user, email:localStorage.email})
         setState({
@@ -188,7 +186,7 @@ const [user,setUser]  = React.useState({
         }
         
       }
-    },[]);
+    },[state.check,user]);
 
     function checkSession(){
       var result = getUrlVars();
@@ -226,7 +224,7 @@ const [user,setUser]  = React.useState({
             Sign in
           </Typography>
           <div hidden = {!state.data}>{checkSession()}You session is lost. Try to login again.</div>
-          <div hidden = {!state.login}>{checkSession()}Your account is logged in on another device</div>
+          <div hidden = {!state.login}>{checkSession()}Your account was logged in on another device</div>
           <form className={classes.form} noValidate 
           >
             <TextField

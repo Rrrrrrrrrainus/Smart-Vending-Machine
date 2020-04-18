@@ -6,8 +6,7 @@ import {
   MdClearAll,
   MdExitToApp,
   MdHelp,
-  MdPersonPin,
-  MdSettingsApplications,
+  MdPersonPin
 } from 'react-icons/md';
 import {
   Button,
@@ -24,13 +23,14 @@ import {
 import bn from 'utils/bemnames';
 import default_user from '../../assets/img/users/default_user.png'
 
-import {decode,checkExpired} from '../authendication'
+import {decode} from '../authendication'
 
 const bem = bn.create('header');
 
 
 
 class Header extends React.Component {
+  _isMounted = false;
   state = {
     isOpenUserCardPopover: false,
     email:undefined,
@@ -41,9 +41,10 @@ class Header extends React.Component {
 
 
   toggleUserCardPopover = () => {
+    if (this._isMounted) {
     this.setState({
       isOpenUserCardPopover: !this.state.isOpenUserCardPopover,
-    });
+    });}
   };
 
   handleSidebarControlButton = event => {
@@ -62,6 +63,12 @@ class Header extends React.Component {
         this.getHandler()
       })
   }
+  }
+  componentDidMount() {
+    this._isMounted = true;
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   getHandler = (e) =>{

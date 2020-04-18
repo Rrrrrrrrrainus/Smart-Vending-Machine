@@ -19,6 +19,8 @@ import FileBase64 from '../components/tobase64';
 
 
 export default class ProfilePage  extends React.Component{
+  _isMounted = false;
+
   constructor(props) {
     super(props)
   this.state= {
@@ -35,6 +37,7 @@ export default class ProfilePage  extends React.Component{
   };
 }
 getFiles(files){
+  if (this._isMounted) {
   this.setState(prevState => {
           
     var user =  {...prevState.user}
@@ -43,6 +46,7 @@ getFiles(files){
   },()=>{
     document.getElementsByClassName('rentou')[0].src = this.state.user.image
   })
+}
 }
   componentWillMount(){
     if(localStorage.jtwToken){
@@ -67,10 +71,16 @@ getFiles(files){
       window.location.href='/';
     }
   }
+  componentDidMount() {
+    this._isMounted = true;}
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
   getHandler = (e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/getimage",this.state.auth)
      .then(response => {
+      if (this._isMounted) {
        this.setState(prevState =>{
         var user =  {...prevState.user}
         user.email = response.data.email
@@ -86,7 +96,7 @@ getFiles(files){
          if(this.state.user.image !== undefined){
           document.getElementsByClassName('rentou')[0].src = this.state.user.image
          }
-       })
+       })}
         }).catch(error => {console.log(error)})
 }
 
@@ -116,10 +126,10 @@ updateHandler = (e) =>{
   console.log(update)
   axios.post("https://vending-insights-smu.firebaseapp.com/updateuser",update)
    .then(response => {
-     console.log(response)
       }).catch(error => {console.log(error)})
 }
  changeHandler = (e) => {
+  if (this._isMounted) {
   const name = e.target.name;
   const value = e.target.value;
   
@@ -127,7 +137,7 @@ updateHandler = (e) =>{
     var user =  {...prevState.user}
     user[name] = value
     return { ...prevState,user };  
-   })
+   })}
 }
 
   render(){

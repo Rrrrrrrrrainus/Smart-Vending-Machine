@@ -1,34 +1,14 @@
-import { AnnouncementCard, TodosCard } from 'components/Card';
-import MapWithBubbles from 'components/MapWithBubbles';
 import Page from 'components/Page';
-import ProductMedia from 'components/ProductMedia';
-import SupportTicket from 'components/SupportTicket';
-import UserProgressTable from 'components/UserProgressTable';
-import { IconWidget, NumberWidget } from 'components/Widget';
+import { NumberWidget } from 'components/Widget';
 import MapContainer from 'components/Maps/maps'
-import {revenue} from 'data/chartdata';
 import { getColor } from 'utils/colors';
-import {
-  productsData,
-  supportTicketsData,
-  todosData,
-  userProgressTableData,
-} from 'demos/dashboardPage';
 import axios from 'axios'
 import React from 'react';
 import  MainLayout from '../components/Layout/MainLayout'
 import { Line,Bar } from 'react-chartjs-2';
 import {
-  MdPersonPin,
-  MdRateReview,
-  MdShare,
-  MdThumbUp,
-} from 'react-icons/md';
-import {
-  Button,
   Card,
   CardBody,
-  CardGroup,
   CardHeader,
   Col,
   Row,
@@ -37,6 +17,7 @@ import {decode,checkExpired} from '../components/authendication'
 
 
 class DashboardPage extends React.Component {
+  _isMounted = false;
   constructor(props){
     super(props);
     this.state={
@@ -90,7 +71,7 @@ class DashboardPage extends React.Component {
   }
 }
   componentDidMount() {
-    // this is needed, because InfiniteCalendar forces window scroll
+    this._isMounted = true;
     window.scrollTo(0, 0);
   }
   componentWillMount(){
@@ -120,13 +101,17 @@ class DashboardPage extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
   saleHandler = (e) =>{
     const data = {
       email:this.state.email
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanysale",data)
      .then(response => {
-       console.log(response.data)
+       if (this._isMounted) {
             this.setState(prevState => {
               var revenue = {...prevState.weekly_revenue};
               for(var i = 6; i >-1; i--) { 
@@ -137,7 +122,7 @@ class DashboardPage extends React.Component {
               revenue.datasets[0].data = response.data.sale.reverse()
               return { ...prevState, revenue };
   
-             })
+             })}
        }).catch(error => {console.log(error)})
   }
 
@@ -148,13 +133,13 @@ class DashboardPage extends React.Component {
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/recentsevendayscompanymonthsale",data)
      .then(response => {
-       console.log(response.data)
+      if (this._isMounted) {
             this.setState(prevState => {
               var bar = {...prevState.bar_data};
               bar.datasets[0].data = response.data.sale
               return { ...prevState, bar };
   
-             })
+             })}
        }).catch(error => {console.log(error)})
   }
 
@@ -165,13 +150,13 @@ class DashboardPage extends React.Component {
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getyearprofitbyuser",data)
      .then(response => {
-       console.log(response.data)
+      if (this._isMounted) {
             this.setState(prevState => {
               var profit = {...prevState.profit_data};
               profit.datasets[0].data = response.data
               return { ...prevState, profit };
   
-             })
+             })}
        }).catch(error => {console.log(error)})
   }
 
@@ -200,6 +185,7 @@ class DashboardPage extends React.Component {
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo",info)
      .then(response => {
+      if (this._isMounted) {
            this.setState({
              
              count:response.data.count,
@@ -245,7 +231,7 @@ class DashboardPage extends React.Component {
               pre_monethly_profit = 100
               return { ...prevState, pre_monethly_profit };
             })
-           }
+           }}
         }).catch(error => {console.log(error)})
 }
 

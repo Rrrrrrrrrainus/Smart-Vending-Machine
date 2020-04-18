@@ -39,7 +39,6 @@ import {
   ModalFooter,
   ModalHeader,
   Button,
-  UncontrolledCollapse,
   Spinner
 } from 'reactstrap';
 import Page from 'components/Page';
@@ -65,6 +64,8 @@ const tableIcons = {
   };
 
 class VendingMachine extends React.Component {
+  _isMounted = false;
+
   constructor(props) {
     super(props);
    this.state = {
@@ -196,6 +197,7 @@ class VendingMachine extends React.Component {
   }
 
   filter(){
+    if (this._isMounted) {
     if(this.state.filted){
       this.setState(prevState => {
         var data2 = [...prevState.data2];
@@ -222,7 +224,7 @@ class VendingMachine extends React.Component {
       data = list
       filted = true
       return { ...prevState, data2,filted,data}}
-      )}
+      )}}
   }
   toggle(){
     var empty={
@@ -230,6 +232,7 @@ class VendingMachine extends React.Component {
       price:undefined,
       url:undefined
     }
+    if (this._isMounted) {
     this.setState({
       modal: !this.state.modal,
       price:empty
@@ -238,14 +241,14 @@ class VendingMachine extends React.Component {
       this._source.cancel('Operation canceled due to new request.')
       this._source = axios.CancelToken.source();
     }
-  })
+  })}
   };
 
   clickPrice(data){
     const url = {
       purchase_url:data.purchase_url
     }
-
+    if (this._isMounted) {
     this.setState(prevState => {
       var similar = {...prevState.similar};
       similar.email = this.state.products.email
@@ -256,7 +259,7 @@ class VendingMachine extends React.Component {
         this.toggle()
         this.priceHandler(url)}
       )
-    
+      }
   }
 
 
@@ -286,6 +289,7 @@ class VendingMachine extends React.Component {
   getHandler = (e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallproduct",this.state.products)
      .then(response => {
+      if (this._isMounted) {
             var products = response.data
             var product_info = []
             var keys = Object.keys(products)
@@ -298,13 +302,14 @@ class VendingMachine extends React.Component {
                 var data = [...prevState.data];
                 data = product_info
                 return { ...prevState, data };
-              });
+              });}
         }).catch(error => {console.log(error)})
 }
 
 similarHandler = (e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/analysis/similar",this.state.similar)
    .then(response => {
+    if (this._isMounted) {
      if(response.data.choice !== -1){
        this.setState(prevState => {
         var similar_product = prevState.similar_product;
@@ -319,14 +324,14 @@ similarHandler = (e) =>{
      else{
       this.setState(prevState => {
        var similar_product = prevState.similar_product;
-       similar_product = "Sorry, we cannot find any similar produt."
+       similar_product = "Sorry, we cannot find any similar product."
        
        return { ...prevState, similar_product };
      },()=>{
      document.getElementById('similar').hidden = false
    }
      );
-    }
+    }}
      
       }
       
@@ -342,6 +347,7 @@ saleHandler = (e) =>{
   
   axios.post("https://vending-insights-smu.firebaseapp.com/analysis/getsevendaysvmsales",data)
    .then(response => {
+    if (this._isMounted) {
           this.setState(prevState => {
             var revenue = {...prevState.weekly_revenue};
             for(var i = 6; i >-1; i--) { 
@@ -352,7 +358,7 @@ saleHandler = (e) =>{
             revenue.datasets[0].data = response.data.sale.reverse()
             return { ...prevState, revenue };
 
-           })
+           })}
      }).catch(error => {console.log(error)})
 }
 
@@ -364,8 +370,7 @@ pieHandler = (e) =>{
   }
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/pie",data)
    .then(response => {
-     console.log(response)
-
+    if (this._isMounted) {
           this.setState(prevState => {
             var pie = {...prevState.pie_sale};
             var keys = Object.keys(response.data)
@@ -378,7 +383,7 @@ pieHandler = (e) =>{
             }
             return { ...prevState, pie };
 
-           })
+           })}
       }).catch(error => {console.log(error)})
 }
 
@@ -395,6 +400,7 @@ infoHandler = (e) =>{
   }
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo2",info)
    .then(response => {
+    if (this._isMounted) {
          this.setState({
            count:response.data.count,
            monthly_sale:response.data.total_sale,
@@ -431,7 +437,7 @@ infoHandler = (e) =>{
             pre_monethly_profit = 100
             return { ...prevState, pre_monethly_profit };
           })
-         }
+         }}
       }).catch(error => {console.log(error)})
 }
 
@@ -439,6 +445,7 @@ infoHandler = (e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url,
     { cancelToken: this._source.token })
     .then(response => {
+      if (this._isMounted) {
       if(response.data.msg !== undefined){
         document.getElementById('search').hidden = true
         document.getElementById('error').hidden = false
@@ -459,12 +466,13 @@ infoHandler = (e) =>{
                }
              })
       }
-            
+    }
         }).catch(error => {console.log(error)})
   }
 submitHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/addproduct",this.state.add_product)
    .then(response => {
+    if (this._isMounted) {
       this.setState(prevState => {
           const data = [...prevState.data];
           const data2 = [...prevState.data2]
@@ -479,13 +487,14 @@ submitHandler = (newData,e) =>{
           data.push(newData);
           }
           return { ...prevState, data,data2 };
-        });
+        });}
       }).catch(error => {console.log(error)})
 }
 
 updateHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.state.update_product)
    .then(response => {
+    if (this._isMounted) {
     this.setState(prevState => {
       var data = [...prevState.data];
       const data2 = [...prevState.data2]
@@ -505,7 +514,7 @@ updateHandler = (newData,e) =>{
       }
       }
       return { ...prevState, data,data2 };
-    });
+    });}
       }).catch(error => {console.log(error.response)})
 }
 deleteHandler = (newData,e) =>{
@@ -572,6 +581,12 @@ deleteHandler = (newData,e) =>{
     
     
   }
+
+  componentDidMount() {
+    this._isMounted = true;}
+    componentWillUnmount() {
+      this._isMounted = false;
+    }
 
   render() {
     
@@ -647,6 +662,7 @@ deleteHandler = (newData,e) =>{
           onRowAdd: newData =>
             new Promise(resolve => {
               setTimeout(() => {
+                if (this._isMounted) {
                 this.setState(prevState => {
                   var add_product = {...prevState.add_product};
                   add_product.name = newData.name
@@ -656,7 +672,7 @@ deleteHandler = (newData,e) =>{
                   return { ...prevState, add_product };
                 },()=>{
                   this.submitHandler(newData)
-                });
+                });}
                 resolve();
               }, 600);
             }),
@@ -664,6 +680,7 @@ deleteHandler = (newData,e) =>{
             new Promise(resolve => {
               setTimeout(() => {
                 resolve();
+                if (this._isMounted) {
                 if (oldData) {
                   this.setState(prevState => {
                     const data = [...prevState.data];
@@ -676,13 +693,14 @@ deleteHandler = (newData,e) =>{
                     
                     return { ...prevState, data,update_product };
                   },()=>{this.updateHandler(newData)});
-                }
+                }}
               }, 600);
             }),
           onRowDelete: oldData =>
             new Promise(resolve => {
               setTimeout(() => {
                 resolve();
+                if (this._isMounted) {
                 this.setState(prevState => {
                   const data = [...prevState.data];
                   data.splice(data.indexOf(oldData), 1);
@@ -690,7 +708,7 @@ deleteHandler = (newData,e) =>{
                   delete_product.name = oldData.name
                   
                   return { ...prevState, data ,delete_product};
-                },()=>{this.deleteHandler()});
+                },()=>{this.deleteHandler()});}
               }, 600);
             }),
             
@@ -725,7 +743,7 @@ deleteHandler = (newData,e) =>{
         <Card>
             <CardImg top src={userImage} height = '400'/>
             <CardBody>
-            <CardTitle className = "text-center" tag="h4" color="light" size="lg" block id="toggler">{this.state.vm_data.name}</CardTitle>
+            <CardTitle className = "text-center" tag="h4" color="light" size="lg"  id="toggler">{this.state.vm_data.name}</CardTitle>
               <Table borderless>
                 <thead>
                   <tr>
@@ -808,7 +826,7 @@ deleteHandler = (newData,e) =>{
               <br />
               <div className="attribute">Product URL: &nbsp;</div>
 
-              < a className="productContent " href={this.state.price.url} target="_blank">Click Here.</a ><br />
+              < a className="productContent " href={this.state.price.url} >Click Here.</a ><br />
 
               <br />
             </div>

@@ -7,23 +7,12 @@ import './styles/reduction.scss';
 
 const LoginPage = React.lazy(() => import('pages/login'));
 const SignupPage = React.lazy(() => import('pages/signup'));
-const AlertPage = React.lazy(() => import('pages/AlertPage'));
 const ForGetPage = React.lazy(() => import('pages/ForgetPassword'));
-const AuthModalPage = React.lazy(() => import('pages/AuthModalPage'));
 const AddVMPage = React.lazy(() => import('pages/AddVM'));
-const BadgePage = React.lazy(() => import('pages/BadgePage'));
-const ButtonGroupPage = React.lazy(() => import('pages/ButtonGroupPage'));
 const VendingMachinePage = React.lazy(() => import('pages/VendingMachine'));
 const MapPage = React.lazy(() => import('pages/MapPage'));
-const ChartPage = React.lazy(() => import('pages/ChartPage'));
 const DashboardPage = React.lazy(() => import('pages/DashboardPage'));
-const DropdownPage = React.lazy(() => import('pages/DropdownPage'));
 const ProfilePage = React.lazy(() => import('pages/ProfilePage'));
-const InputGroupPage = React.lazy(() => import('pages/InputGroupPage'));
-const ModalPage = React.lazy(() => import('pages/ModalPage'));
-const ProgressPage = React.lazy(() => import('pages/ProgressPage'));
-const TablePage = React.lazy(() => import('pages/TablePage'));
-const TypographyPage = React.lazy(() => import('pages/TypographyPage'));
 const LandingPage = React.lazy(() => import('../src/Landing Pge/LandingPage'));
 const HelpPage = React.lazy(() => import('pages/Help'));
 
@@ -41,29 +30,13 @@ class App extends React.Component {
                 <Route exact path="/" component={LoginPage} />
                 <Route exact path="/signup" component={SignupPage} />
                 <Route exact path="/check_email" component={ForGetPage} />
-            {/* <MainLayout breakpoint={this.props.breakpoint}> */}
             <Route exact path="/n" component = {LandingPage} />
                 <Route exact path="/dashboard" component={DashboardPage} />
                 <Route exact path="/addvm" component={AddVMPage} />
-                <Route exact path="/login-modal" component={AuthModalPage} />
                 <Route exact path="/map" component={MapPage} />
                 <Route exact path="/vendingmachine" component={VendingMachinePage} />
-                <Route exact path="/typography" component={TypographyPage} />
-                <Route exact path="/alerts" component={AlertPage} />
-                <Route exact path="/tables" component={TablePage} />
-                <Route exact path="/badges" component={BadgePage} />
                 <Route exact path="/help" component={HelpPage} />
-                <Route
-                  exact
-                  path="/button-groups"
-                  component={ButtonGroupPage}
-                />
-                <Route exact path="/dropdowns" component={DropdownPage} />
-                <Route exact path="/progress" component={ProgressPage} />
-                <Route exact path="/modals" component={ModalPage} />
                 <Route exact path="/profile" component={ProfilePage} />
-                <Route exact path="/input-groups" component={InputGroupPage} />
-                <Route exact path="/charts" component={ChartPage} />
               
             {/* </MainLayout> */}
             </React.Suspense>

@@ -35,6 +35,7 @@ class Help extends React.Component {
             } else {
                 faq.open = false
             }
+            return null;
           }))
       }
     
