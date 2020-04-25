@@ -24,7 +24,7 @@ const sidebarBackground = {
 };
 
 
-
+// define sidebar buttons
 const navItems = [
   { to: '/dashboard', name: 'dashboard', exact: true, Icon: MdDashboard },
   { to: '/map', name: 'map', exact: false, Icon: MdMap },
@@ -33,6 +33,7 @@ const navItems = [
 
 const bem = bn.create('sidebar');
 
+// sidebar class that holds all page buttons
 class Sidebar extends React.Component {
   state = {
     isOpenComponents: true,

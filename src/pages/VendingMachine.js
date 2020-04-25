@@ -22,7 +22,7 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
-import {decode,checkExpired} from '../components/authendication'
+import {decode,checkExpired} from '../components/Authendication'
 import { getColor } from '../utils/colors';
 import {
   Row,
@@ -63,6 +63,7 @@ const tableIcons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
   };
 
+  // single vending machine page that shows one vending machine information
 class VendingMachine extends React.Component {
   _isMounted = false;
 
@@ -74,7 +75,7 @@ class VendingMachine extends React.Component {
       {title: 'Net Sales', field:'sales',type:'numeric',editable: 'never'},
       {title: 'Price', field:'price',type:'numeric'},
       {title: 'Inventory', field: 'inventory', },
-      {title: 'Purchase URL', field: 'purchase_url', },
+      {title: 'Purchase URL', field: 'purchase_url', width: 50 },
       
     ],
     data: [
@@ -82,6 +83,7 @@ class VendingMachine extends React.Component {
     data2:[],
     filted:false,
     modal:false,
+    modal2:false,
     vm_data: {
       name:"",
       vm_id:0,
@@ -189,6 +191,7 @@ class VendingMachine extends React.Component {
   }
 
 
+  // function that closes the price modal
   closemodule(){
     document.getElementById('search').hidden = false
     document.getElementById('info').hidden = true
@@ -196,6 +199,8 @@ class VendingMachine extends React.Component {
     this.toggle()
   }
 
+  // filter function that checks 0 inventory product
+  // it also allows update/add/delete operations
   filter(){
     if (this._isMounted) {
     if(this.state.filted){
@@ -226,6 +231,8 @@ class VendingMachine extends React.Component {
       return { ...prevState, data2,filted,data}}
       )}}
   }
+
+  // price modal toggle function
   toggle(){
     var empty={
       product:undefined,
@@ -244,6 +251,16 @@ class VendingMachine extends React.Component {
   })}
   };
 
+  // input error modal toggle function
+  toggle2(){
+    this.setState(prevState =>{
+      var modal2 = prevState.modal2
+      modal2 = ! this.state.modal2
+      return { ...prevState,modal2}
+    })
+   }
+
+   // row click event that displays price modal
   clickPrice(data){
     const url = {
       purchase_url:data.purchase_url
@@ -263,6 +280,7 @@ class VendingMachine extends React.Component {
   }
 
 
+  // function that reads information from url
   getUrlVars() { 
     var vars = {}; 
     window.location.href.replace(/[?&]+([^=&]+)=([-]*[a-zA-z0-9]*[.]*[a-zA-z0-9]*)/gi, function(m,key,value) { 
@@ -271,6 +289,7 @@ class VendingMachine extends React.Component {
     return vars; 
   }
 
+  // request checks session
   loginHandler = (e) =>{
     const data = {
       id:localStorage.id,
@@ -286,10 +305,12 @@ class VendingMachine extends React.Component {
        }).catch(error => {console.log(error)})
   }
 
+  // request that gets all product info
   getHandler = (e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallproduct",this.state.products)
      .then(response => {
       if (this._isMounted) {
+        if(response.data !== null){
             var products = response.data
             var product_info = []
             var keys = Object.keys(products)
@@ -302,10 +323,11 @@ class VendingMachine extends React.Component {
                 var data = [...prevState.data];
                 data = product_info
                 return { ...prevState, data };
-              });}
+              });}}
         }).catch(error => {console.log(error)})
 }
 
+// finds similar product based on recent 7 days information
 similarHandler = (e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/analysis/similar",this.state.similar)
    .then(response => {
@@ -338,6 +360,7 @@ similarHandler = (e) =>{
       ).catch(error => {console.log(error)})
 }
 
+// gets recent 7 days sale 
 saleHandler = (e) =>{
   const data = {
     email:this.state.products.email,
@@ -362,6 +385,7 @@ saleHandler = (e) =>{
      }).catch(error => {console.log(error)})
 }
 
+// get each product's sale in recent 7 days
 pieHandler = (e) =>{
   const data = {
     email:this.state.products.email,
@@ -387,7 +411,7 @@ pieHandler = (e) =>{
       }).catch(error => {console.log(error)})
 }
 
-
+// get monthly information for number widget
 infoHandler = (e) =>{
   let today = new Date()
 
@@ -440,11 +464,12 @@ infoHandler = (e) =>{
          }}
       }).catch(error => {console.log(error)})
 }
-
+// request that gets the price based on url
   priceHandler = (url,e) =>{
     axios.post("https://vending-insights-smu.firebaseapp.com/getprice",url,
     { cancelToken: this._source.token })
     .then(response => {
+      console.log(response)
       if (this._isMounted) {
       if(response.data.msg !== undefined){
         document.getElementById('search').hidden = true
@@ -469,6 +494,8 @@ infoHandler = (e) =>{
     }
         }).catch(error => {console.log(error)})
   }
+
+  // add product request
 submitHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/addproduct",this.state.add_product)
    .then(response => {
@@ -491,6 +518,7 @@ submitHandler = (newData,e) =>{
       }).catch(error => {console.log(error)})
 }
 
+// update product request
 updateHandler = (newData,e) =>{
   axios.post("https://vending-insights-smu.firebaseapp.com/vm/updateproduct",this.state.update_product)
    .then(response => {
@@ -517,6 +545,8 @@ updateHandler = (newData,e) =>{
     });}
       }).catch(error => {console.log(error.response)})
 }
+
+// delete product request
 deleteHandler = (newData,e) =>{
   axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deleteproduct",
   {data:this.state.delete_product})
@@ -663,6 +693,15 @@ deleteHandler = (newData,e) =>{
             new Promise(resolve => {
               setTimeout(() => {
                 if (this._isMounted) {
+                  var format = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
+                  if(format.test(newData.name) || Number(newData.price)<0 || Number(newData.inventory)<0){
+                    this.setState(prevState =>{
+                      var modal2 = prevState.modal2
+                      modal2 = ! this.state.modal2
+                      return { ...prevState,modal2}
+                    })
+                  }
+                  else{
                 this.setState(prevState => {
                   var add_product = {...prevState.add_product};
                   add_product.name = newData.name
@@ -672,7 +711,7 @@ deleteHandler = (newData,e) =>{
                   return { ...prevState, add_product };
                 },()=>{
                   this.submitHandler(newData)
-                });}
+                });}}
                 resolve();
               }, 600);
             }),
@@ -681,6 +720,14 @@ deleteHandler = (newData,e) =>{
               setTimeout(() => {
                 resolve();
                 if (this._isMounted) {
+                  if(Number(newData.price)<0 || Number(newData.inventory)<0){
+                      this.setState(prevState =>{
+                        var modal2 = prevState.modal2
+                        modal2 = ! this.state.modal2
+                        return { ...prevState,modal2}
+                      })
+                    }
+                    else{
                 if (oldData) {
                   this.setState(prevState => {
                     const data = [...prevState.data];
@@ -693,7 +740,7 @@ deleteHandler = (newData,e) =>{
                     
                     return { ...prevState, data,update_product };
                   },()=>{this.updateHandler(newData)});
-                }}
+                }}}
               }, 600);
             }),
           onRowDelete: oldData =>
@@ -826,7 +873,7 @@ deleteHandler = (newData,e) =>{
               <br />
               <div className="attribute">Product URL: &nbsp;</div>
 
-              < a className="productContent " href={this.state.price.url} >Click Here.</a ><br />
+              < a className="productContent " href={this.state.price.url} rel="noopener noreferrer" target="_blank">Click Here.</a ><br />
 
               <br />
             </div>
@@ -847,6 +894,23 @@ deleteHandler = (newData,e) =>{
             }>
               Close
       </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.modal2}
+        >
+          <ModalHeader>
+            Invalid Input
+          </ModalHeader>
+          <ModalBody>
+           The input is not valid.
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={() => this.toggle2()
+            }>
+              Close
+          </Button>
           </ModalFooter>
         </Modal>
       </MainLayout>

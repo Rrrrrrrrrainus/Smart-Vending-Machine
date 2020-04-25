@@ -33,7 +33,7 @@ export const getColor = (availableColor = 'primary') => {
 
   return color;
 };
-
+// color function that defines button color
 export const getThemeColors = () => [
   'blue',
   'indigo',

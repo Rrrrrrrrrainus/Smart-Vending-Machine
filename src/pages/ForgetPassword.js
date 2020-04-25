@@ -12,6 +12,7 @@ import axios from 'axios'
 
 function Copyright() {
   return (
+    // regturn SW Vault copy right
     <Typography variant="body2" color="textSecondary" align="center">
       {'Copyright © '}
         SW Vault{' '}
@@ -21,6 +22,7 @@ function Copyright() {
   );
 }
 
+// set up styles
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -43,8 +45,10 @@ const useStyles = makeStyles(theme => ({
 
 
 
+// forget password page that allows user to get a new password
+export default function ForgetPassword(){
 
-export default function SignUp(){
+  // set up values for axios requests
   const [state, setState] = React.useState({
     email:""
   })
@@ -68,6 +72,7 @@ export default function SignUp(){
     passiserror:false
   })
 
+  // change handler that handles input change
     const changeHandler = (e) => {
       setState({...state, [e.target.name]: e.target.value})
       setPin({...pins, [e.target.name]: e.target.value})
@@ -79,7 +84,7 @@ export default function SignUp(){
         validation(name,value)
       }
 
-
+      // validation function that checks input validation
       const validation = (name, value)=>{
         if(name === 'password'){
           if(value.length === 0){
@@ -186,6 +191,8 @@ export default function SignUp(){
           }
       }
       }
+
+      // request that checks if the email is existing in the database
       const checkHandler = (e) =>{
         console.log(state)
         axios.post("https://vending-insights-smu.firebaseapp.com/check",state)
@@ -215,6 +222,8 @@ export default function SignUp(){
                 }
             }).catch(error => {console.log(error)})
     }
+
+    // once the email exists, show hidden pin fields and call request that sends change code to the email
     const sendHandler = (e) =>{
 
         console.log(state)
@@ -229,6 +238,8 @@ export default function SignUp(){
                 console.log(response)
             }).catch(error => {console.log(error)})
     }
+
+    // request that setup new password
     const submitHandler = (e) =>{
       const request = {
         email: pins.email,

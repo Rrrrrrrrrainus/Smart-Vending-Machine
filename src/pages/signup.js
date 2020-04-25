@@ -45,7 +45,7 @@ const useStyles = makeStyles(theme => ({
 
 
 
-
+// signup page that allows user to create a new account
 export default function SignUp(){
   const [state, setState] = React.useState({
         name:"",
@@ -63,6 +63,7 @@ export default function SignUp(){
       passiserror:false
     })
 
+    // change handler for inputs
     const changeHandler = (e) => {
       setState({...state, [e.target.name]: e.target.value})
         const name = e.target.name;
@@ -70,6 +71,7 @@ export default function SignUp(){
         validation(name,value)
       }
 
+    // check input validation
     const validation = (name, value)=>{
       if(name === 'email'){
         if(value.length === 0){
@@ -206,6 +208,7 @@ export default function SignUp(){
 }
     }
 
+    // request for signup, and redirects to login page
     const submitHandler = (e) =>{
         const variable = {
           name: state.name,

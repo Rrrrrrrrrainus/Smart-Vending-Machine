@@ -1,3 +1,4 @@
+// index that exports all classes in layout folder
 export { default as Content } from './Content';
 export { default as Footer } from './Footer';
 export { default as Header } from './Header';

@@ -14,8 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Image from '../assets/img/bg/img2.jpeg';
 import axios from 'axios';
-import {decode,checkExpired} from '../components/authendication'
-
+import {decode,checkExpired} from '../components/Authendication'
 
 function Copyright() {
     return (
@@ -59,6 +58,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
+// defines function that reads values from url
 function getUrlVars() { 
   var vars = {}; 
   window.location.href.replace(/[?&]+([^=&]+)=([-]*[a-zA-z0-9]*[.]*[a-zA-z0-9]*)/gi, function(m,key,value) { 
@@ -67,6 +67,7 @@ function getUrlVars() {
   return vars; 
 }
 
+// login page that allows user to login account
 export default function SignInSide() {
   const classes = useStyles();
 
@@ -78,7 +79,8 @@ const [user,setUser]  = React.useState({
   const [state,setState]  = React.useState({
     data:false,
     check:false,
-    login:false
+    login:false,
+    change:false
   });
 
   const [error,setError]  = React.useState({
@@ -87,20 +89,26 @@ const [user,setUser]  = React.useState({
     password_error:"",
     passiserror:false
   });
+
+  // user input change handler
     const changeHandler = (e) => {
       setUser({...user, [e.target.name]: e.target.value})
 
     }
-
+// check box change handler
     function checkHandler(event, isChecked, value){
       setState(prevState => {
         var check = prevState.check;
+        var change = prevState.change
+        change = true
         check = isChecked
-        return { ...prevState, check};
+        return { ...prevState, check,change};
       }
       )
     }
 
+    // request that sends login info and directs to main dashboard
+    // it will also check input validation before sending the request
     const submitHandler = (e) =>{
       if(user.email === ""){
         setError(prevState => {
@@ -170,13 +178,17 @@ const [user,setUser]  = React.useState({
     }
   }
 
+  // check session token, if there is a token, redirect to dashboard without login
     useEffect(() => {
-      if(localStorage.email && !state.check){
-        document.getElementById('email').value = localStorage.email
+      if(localStorage.email){
+        if(user.email === undefined){
+          document.getElementById('email').value = localStorage.email
         setUser({...user, email:localStorage.email})
+        }
+        if(state.change === false){
         setState({
           check:true
-        })
+        })}
         
       }
       if(localStorage.jtwToken){
@@ -186,8 +198,10 @@ const [user,setUser]  = React.useState({
         }
         
       }
-    },[state.check,user]);
+    },[state.check,user,state.change]);
 
+    // function that checks url info
+    // it will display expired session or login on another device message
     function checkSession(){
       var result = getUrlVars();
       if(result['session']){

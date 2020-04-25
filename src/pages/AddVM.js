@@ -19,8 +19,16 @@ import Search from '@material-ui/icons/Search';
 import ViewColumn from '@material-ui/icons/ViewColumn';
 import { forwardRef } from 'react';
 import axios from 'axios'
-import {decode,checkExpired} from '../components/authendication'
+import {decode,checkExpired} from '../components/Authendication'
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter,
+  Button
+} from 'reactstrap';
 
+// define material table icons
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -41,12 +49,15 @@ const tableIcons = {
   ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />)
   };
 
+  // page ADDVM 
 class AddVM extends React.Component{
   _isMounted = false;
 
+  // defines values for later requests
   constructor(props) {
     super(props);
    this.state = {
+     modal:false,
     auth:{
       token:localStorage.jtwToken,
       email:undefined
@@ -73,6 +84,7 @@ class AddVM extends React.Component{
       latitude:0,
       name:""
   },
+  // define table data
   columns: [
     { title: 'ID', field: 'vm_id', editable: 'never'},
     {title: 'Name', field: 'name' },
@@ -90,10 +102,20 @@ class AddVM extends React.Component{
   ]
    }}
 
+   toggle(){
+    this.setState(prevState =>{
+      var modal = prevState.modal
+      modal = ! this.state.modal
+      return { ...prevState,modal}
+    })
+   }
+
+   // request that gets all vending machine information
     getHandler = (e) =>{
         axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallvm",this.state.auth)
          .then(response => {
           if (this._isMounted) {
+            if(response.data !== null){
                 var vms = response.data
                 var vm_info = []
                 var keys = Object.keys(vms)
@@ -108,9 +130,11 @@ class AddVM extends React.Component{
                     var data = [...prevState.data];
                     data = vm_info
                     return { ...prevState, data };
-                  });}}
+                  });}}}
             ).catch(error => {console.log(error)})
     }
+    
+    // request that adds a new vending machine
     submitHandler = (newData,e) =>{
         axios.post("https://vending-insights-smu.firebaseapp.com/vm/addvm",this.state.add_vm)
          .then(response => {
@@ -126,6 +150,8 @@ class AddVM extends React.Component{
               });}
             }).catch(error => {console.log(error)})
     }
+
+    // requests that delete an existing vending machine
     deleteHandler = (newData,e) =>{
         axios.delete("https://vending-insights-smu.firebaseapp.com/vm/deletevm",
         {data:this.state.deletevm})
@@ -133,6 +159,7 @@ class AddVM extends React.Component{
             }).catch(error => {console.log(error.response)})
     }
 
+    // request that checks session
     loginHandler = (e) =>{
       const data = {
         id:localStorage.id,
@@ -148,12 +175,14 @@ class AddVM extends React.Component{
          }).catch(error => {console.log(error)})
     }
 
+    // request that updates an existing vending machien information
     updateHandler = (newData,e) =>{
       axios.post("https://vending-insights-smu.firebaseapp.com/vm/updatevm",this.state.updatevm)
        .then(response => {
           }).catch(error => {console.log(error.response)})
   }
 
+  // before showing the page, load the email from jwt token, then update it to all email values
   componentWillMount(){
     if(localStorage.jtwToken){
       var code = decode()
@@ -185,6 +214,7 @@ class AddVM extends React.Component{
         this._isMounted = false;
       }
 
+    // click function that loads clicked vending machine information and redirect to vending machine page 
     movetovm = (vm) =>{
       this.props.history.push({
         pathname: '/vendingmachine',
@@ -196,17 +226,29 @@ class AddVM extends React.Component{
     <MainLayout> 
     <Page>
       <MaterialTable
+      // material table API that displays vending machine list
       minRows={10}
       icons={tableIcons}
         title="Vending Machine List"
         columns={this.state.columns}
         data={this.state.data}
         editable={{
+          // row add action
           onRowAdd: newData =>
             new Promise(resolve => {
               setTimeout(() => {
                 resolve();
                 if (this._isMounted) {
+                  var format = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
+                  if(format.test(newData.name) || Number(newData.longitude)>90 || Number(newData.longitude)<-90
+                    || Number(newData.latitude)>180 ||Number(newData.latitude)<-180){
+                    this.setState(prevState =>{
+                      var modal = prevState.modal
+                      modal = ! this.state.modal
+                      return { ...prevState,modal}
+                    })
+                  }
+                  else{
                 this.setState(prevState => {
                   var add_vm = {...prevState.add_vm}
                   add_vm.longitude = newData.longitude;
@@ -214,15 +256,25 @@ class AddVM extends React.Component{
                   add_vm.name= newData.name;
                   return { ...prevState, add_vm };
                 },()=>{
-                this.submitHandler(newData)})}
+                this.submitHandler(newData)})}}
               }, 600);
             }),
+            // row update action
           onRowUpdate: (newData, oldData) =>
             new Promise(resolve => {
               setTimeout(() => {
                 resolve();
                 if (oldData) {
                   if (this._isMounted) {
+                    if( Number(newData.longitude)>90 || Number(newData.longitude)<-90
+                    || Number(newData.latitude)>180 ||Number(newData.latitude)<-180){
+                      this.setState(prevState =>{
+                        var modal = prevState.modal
+                        modal = ! this.state.modal
+                        return { ...prevState,modal}
+                      })
+                    }
+                    else{
                   this.setState(prevState => {
                     const data = [...prevState.data];
                     data[data.indexOf(oldData)] = newData;
@@ -234,9 +286,10 @@ class AddVM extends React.Component{
                     
                     return { ...prevState, data,updatevm };
                   },()=>{this.updateHandler()});
-                }}
+                }}}
               }, 600);
             }),
+            // row delete action
           onRowDelete: oldData =>
             new Promise(resolve => {
               setTimeout(() => {
@@ -259,8 +312,27 @@ class AddVM extends React.Component{
             pageSize: 10,
             pageSizeOptions: [5, 10, 20, 30 ,50, 75, 100 ],
           }}
+          // if click one row, call movetovm function
         onRowClick={(event,rowData) => this.movetovm(rowData)}
-          /> </Page></MainLayout>
+          /> 
+           <Modal
+          isOpen={this.state.modal}
+        >
+          <ModalHeader>
+            Invalid Input
+          </ModalHeader>
+          <ModalBody>
+           The input is not valid.
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={() => this.toggle()
+            }>
+              Close
+          </Button>
+          </ModalFooter>
+        </Modal>
+          
+          </Page></MainLayout>
     );
   }
 }

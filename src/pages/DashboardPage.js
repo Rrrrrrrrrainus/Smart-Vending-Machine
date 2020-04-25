@@ -1,6 +1,6 @@
 import Page from 'components/Page';
 import { NumberWidget } from 'components/Widget';
-import MapContainer from 'components/Maps/maps'
+import MapContainer from 'components/Maps/Maps'
 import { getColor } from 'utils/colors';
 import axios from 'axios'
 import React from 'react';
@@ -13,12 +13,14 @@ import {
   Col,
   Row,
 } from 'reactstrap';
-import {decode,checkExpired} from '../components/authendication'
+import {decode,checkExpired} from '../components/Authendication'
 
 
+// main dashboard page
 class DashboardPage extends React.Component {
   _isMounted = false;
   constructor(props){
+    // defines monthly data and graph data
     super(props);
     this.state={
       year: undefined,
@@ -74,6 +76,8 @@ class DashboardPage extends React.Component {
     this._isMounted = true;
     window.scrollTo(0, 0);
   }
+
+  // when loading the page, check session, then call all requests
   componentWillMount(){
     if(localStorage.jtwToken){
       var code = decode()
@@ -105,6 +109,7 @@ class DashboardPage extends React.Component {
     this._isMounted = false;
   }
 
+  // request that returns seven days company sale
   saleHandler = (e) =>{
     const data = {
       email:this.state.email
@@ -126,6 +131,7 @@ class DashboardPage extends React.Component {
        }).catch(error => {console.log(error)})
   }
 
+  // request that returns company annual sale 
   barHandler = (e) =>{
     const data = {
       email:this.state.email,
@@ -143,6 +149,7 @@ class DashboardPage extends React.Component {
        }).catch(error => {console.log(error)})
   }
 
+  // request that returns company annual profit
   profitHandler = (e) =>{
     const data = {
       email:this.state.email,
@@ -160,6 +167,7 @@ class DashboardPage extends React.Component {
        }).catch(error => {console.log(error)})
   }
 
+  // request that checks session
   loginHandler = (e) =>{
     const data = {
       id:localStorage.id,
@@ -175,13 +183,14 @@ class DashboardPage extends React.Component {
        }).catch(error => {console.log(error)})
   }
 
+  // request that returns monthly data 
   getHandler = (e) =>{
     
     const info = {
       year: this.state.year,
       month:this.state.month,
       email: this.state.email,
-      // token:localStorage.jtwToken
+      token:localStorage.jtwToken
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/vm/vminfo",info)
      .then(response => {
@@ -197,6 +206,7 @@ class DashboardPage extends React.Component {
              monthly_profit: response.data.profit,
              pre_monethly_profit:parseFloat((100*response.data.profit/response.data.previous_profit).toFixed(2))
            })
+           // if the data returns as 0 or null, handles it to be properly displayed
            if(response.data.count === 0 || response.data.count === null){
             this.setState(prevState => {
               var non_count = prevState.non_count;
@@ -248,6 +258,7 @@ class DashboardPage extends React.Component {
         <Row>
           <Col lg={3} md={6} sm={6} xs={12}>
             <NumberWidget
+            // number widget component that shows a monthly data
               title="Total Vending Machines"
               number={this.state.count}
               color="secondary"
@@ -313,7 +324,9 @@ class DashboardPage extends React.Component {
           </Col>
           
           <Col lg="5" md="12" sm="12" xs="12" > 
-            <MapContainer></MapContainer>
+            <MapContainer
+            // call map class to show Google map API
+            ></MapContainer>
           </Col>
 
           

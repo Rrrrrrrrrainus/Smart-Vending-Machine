@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import { Map, Marker, InfoWindow,GoogleApiWrapper } from 'google-maps-react';
-import {decode} from '../authendication'
+import {decode} from '../Authendication'
 
 const mapStyles = {
   width: '94%',
   height: '100%'
 };
 
+// Map class that shows a Google Map API
 export class MapContainer extends Component {
   _isMounted = false;
 
+  // define properties
     constructor(props) {
         super(props);
         this.state = {
@@ -31,6 +33,7 @@ export class MapContainer extends Component {
         this.onMapClick = this.onMapClick.bind(this);
       }
 
+      // check session token
       loginHandler = (e) =>{
         const data = {
           id:localStorage.id,
@@ -46,10 +49,11 @@ export class MapContainer extends Component {
            }).catch(error => {console.log(error)})
       }
       
+      // get vending machine information
       getHandler(){
         axios.post("https://vending-insights-smu.firebaseapp.com/vm/getallvm",this.getvm)
          .then(response => {
-                // console.log(response)
+                if(response.data !== null){
                 var vms = response.data
                 this.vm = vms
                 var keys = Object.keys(vms)
@@ -68,10 +72,11 @@ export class MapContainer extends Component {
                       />)
                       if (this._isMounted) {
                   this.setState(marker)}
-                }
+                }}
             }).catch(error => {console.log(error)})
       }
 
+      // handle marker click event
       onMarkerClick = (props, marker, e) => {
         if (this._isMounted) {
         this.setState({
@@ -81,6 +86,7 @@ export class MapContainer extends Component {
           selectMarker: this.vm[marker.id]
         });}
       }
+      // handle map click event
       onMapClick = (props) => {
         if (this._isMounted) {
         if (this.state.showingInfoWindow) {
@@ -90,6 +96,8 @@ export class MapContainer extends Component {
           });
         }}
       }
+      
+      // react life cycle
       componentWillMount(){
         if(localStorage.jtwToken){
           var code = decode()
@@ -140,6 +148,8 @@ export class MapContainer extends Component {
     );
   }
 }
+
+// export map class with GoogleApi
 export default GoogleApiWrapper({
   apiKey: 'AIzaSyDxNRHpwkUKhYVH3lc4UGN-Zu2OTKZNKqU'
 })(MapContainer);

@@ -1,5 +1,6 @@
 import React from 'react';
 
+// function that opens an image and convert it to base64
 export default class FileBase64 extends React.Component {
 
   constructor(props) {

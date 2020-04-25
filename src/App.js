@@ -5,8 +5,9 @@ import componentQueries from 'react-component-queries';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './styles/reduction.scss';
 
-const LoginPage = React.lazy(() => import('pages/login'));
-const SignupPage = React.lazy(() => import('pages/signup'));
+// loads all components
+const LoginPage = React.lazy(() => import('pages/Login'));
+const SignupPage = React.lazy(() => import('pages/Signup'));
 const ForGetPage = React.lazy(() => import('pages/ForgetPassword'));
 const AddVMPage = React.lazy(() => import('pages/AddVM'));
 const VendingMachinePage = React.lazy(() => import('pages/VendingMachine'));
@@ -21,6 +22,7 @@ const getBasename = () => {
 };
 
 class App extends React.Component {
+  // defines all routes
   render() {
     return (
       <BrowserRouter basename={getBasename()}>

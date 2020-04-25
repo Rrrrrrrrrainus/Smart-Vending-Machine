@@ -23,12 +23,12 @@ import {
 import bn from 'utils/bemnames';
 import default_user from '../../assets/img/users/default_user.png'
 
-import {decode} from '../authendication'
+import {decode} from '../Authendication'
 
 const bem = bn.create('header');
 
 
-
+// header class that shows profile and help page buttons and user card
 class Header extends React.Component {
   _isMounted = false;
   state = {
@@ -39,7 +39,7 @@ class Header extends React.Component {
   };
 
 
-
+// function that handles display of user card
   toggleUserCardPopover = () => {
     if (this._isMounted) {
     this.setState({
@@ -47,6 +47,7 @@ class Header extends React.Component {
     });}
   };
 
+  // funciton that handles sidebar control button
   handleSidebarControlButton = event => {
     event.preventDefault();
     event.stopPropagation();
@@ -54,6 +55,7 @@ class Header extends React.Component {
     document.querySelector('.cr-sidebar').classList.toggle('cr-sidebar--open');
   };
 
+  // before showing the page, call gethandler to get user info
   componentWillMount(){
     if(this.state.email === undefined){
       var code = decode()
@@ -64,6 +66,8 @@ class Header extends React.Component {
       })
   }
   }
+
+  // if component will unmount, cancel all axios requests
   componentDidMount() {
     this._isMounted = true;
   }
@@ -78,13 +82,14 @@ class Header extends React.Component {
     }
     axios.post("https://vending-insights-smu.firebaseapp.com/getimage",auth)
      .then(response => {
-       if(response.data.image !==undefined){
+      if (this._isMounted) {
+       if(response.data.image !==undefined && response.data.image !==0){
        this.setState({image:response.data.image},()=>{
           document.getElementById('avatar').src = this.state.image
-       })}
+       })}}
         }).catch(error => {console.log(error)})
 }
-
+// funciton that deletes token and redirects to login page
   signOut(){
     delete localStorage.jtwToken
     delete localStorage.auth

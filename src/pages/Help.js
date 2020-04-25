@@ -3,9 +3,11 @@ import  MainLayout from '../components/Layout/MainLayout'
 import FAQ from '../components/FAQ'
 import '../styles/components/_faq.scss'
 
+// FAQ page that shows general FAQ questions
 class Help extends React.Component {
     constructor(props) {
       super(props);
+      // define general questions
       this.state= {
           faq:[
             {question:"What is our business value?",
@@ -28,6 +30,7 @@ class Help extends React.Component {
       }
       }
 
+      // function that handles question click event
       toggleFAQ = index =>{
           this.setState(this.state.faq.map((faq,i) => {
             if(i === index){
@@ -39,6 +42,7 @@ class Help extends React.Component {
           }))
       }
     
+    // Call FAQ function to display all questions and answers
     render() {
     
 
