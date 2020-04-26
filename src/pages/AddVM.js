@@ -240,8 +240,8 @@ class AddVM extends React.Component{
                 resolve();
                 if (this._isMounted) {
                   var format = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/;
-                  if(format.test(newData.name) || Number(newData.longitude)>90 || Number(newData.longitude)<-90
-                    || Number(newData.latitude)>180 ||Number(newData.latitude)<-180){
+                  if(format.test(newData.name) || Number(newData.longitude)>180 || Number(newData.longitude)<-180
+                    || Number(newData.latitude)>90 ||Number(newData.latitude)<-90){
                     this.setState(prevState =>{
                       var modal = prevState.modal
                       modal = ! this.state.modal
@@ -266,8 +266,8 @@ class AddVM extends React.Component{
                 resolve();
                 if (oldData) {
                   if (this._isMounted) {
-                    if( Number(newData.longitude)>90 || Number(newData.longitude)<-90
-                    || Number(newData.latitude)>180 ||Number(newData.latitude)<-180){
+                    if( Number(newData.longitude)>180 || Number(newData.longitude)<-180
+                    || Number(newData.latitude)>90 ||Number(newData.latitude)<-90){
                       this.setState(prevState =>{
                         var modal = prevState.modal
                         modal = ! this.state.modal

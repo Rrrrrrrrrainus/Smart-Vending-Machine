@@ -65,7 +65,7 @@ export class MapContainer extends Component {
                       <Marker
                         onClick = { this.onMarkerClick }
                         title = { 'Changing Colors Garage' }
-                        position = {{ lat: vm_info.latitude, lng: vm_info.longitude}}
+                        position = {{ lat: Number(vm_info.latitude), lng: Number(vm_info.longitude)}}
                         name = { 'Changing Colors Garage' }
                         id = {key}
                         key = {i}
